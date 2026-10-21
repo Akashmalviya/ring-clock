@@ -34,6 +34,7 @@ img { max-width: 100%; }
   --warm: #e0a12a;   /* warm-up */
   --fight: #d4362b;  /* round */
   --rest: #2f9e5b;   /* rest */
+  --om: #e6913a; --bhastrika: #de6040; --anulom: #4a90d6; --kapal: #a862d6; --bhramari: #3eb096; /* pranayam practices */
   --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --cond: "Barlow Condensed", "Arial Narrow", sans-serif;
   --body: "Barlow", "Segoe UI", system-ui, sans-serif;
@@ -53,21 +54,26 @@ button { -webkit-user-select: none; user-select: none; font-family: inherit; }
 button:focus-visible, textarea:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 .wrap { max-width: 480px; margin: 0 auto; padding-block: 18px 36px; display: grid; gap: 20px; }
-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .brand { font-family: var(--display); font-weight: 900; font-size: 28px; letter-spacing: .04em; text-transform: uppercase; }
 .brand span { color: var(--fight); }
 
 .tabs { position: relative; display: flex; background: var(--panel); border-radius: 999px; padding: 4px; }
-.tabs .pill { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 999px; background: var(--line); transition: transform .5s var(--ease); }
-.tabs[data-on="log"] .pill { transform: translateX(100%); }
-.tabs button { position: relative; z-index: 1; width: 72px; background: none; border: 0; color: var(--muted); font: 600 14px var(--body); padding: 8px 0; border-radius: 999px; cursor: pointer; transition: color .4s var(--ease); }
+.tabs .pill { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 999px; background: var(--line); transition: transform .5s var(--ease); }
+.tabs[data-on="prana"] .pill { transform: translateX(100%); }
+.tabs[data-on="log"] .pill { transform: translateX(200%); }
+.tabs button { position: relative; z-index: 1; width: 76px; background: none; border: 0; color: var(--muted); font: 600 14px var(--body); padding: 8px 0; border-radius: 999px; cursor: pointer; transition: color .4s var(--ease); }
 .tabs button[aria-selected="true"] { color: var(--fg); }
+@media (max-width: 420px) {
+  .brand { font-size: 22px; }
+  .tabs button { width: 66px; font-size: 13px; }
+}
 
 .stage { display: grid; }
 .view { grid-area: 1 / 1; display: grid; gap: 22px; align-content: start; min-width: 0; transition: opacity .5s var(--ease), transform .6s var(--ease), visibility 0s .6s; }
 .view.off { opacity: 0; visibility: hidden; pointer-events: none; }
 #setup.off { transform: translateX(-28px); }
-#logView.off { transform: translateX(28px); }
+#logView.off, #pranaView.off { transform: translateX(28px); }
 .view:not(.off) { transition: opacity .5s var(--ease), transform .6s var(--ease), visibility 0s; }
 
 .label { font: 700 12px var(--cond); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
@@ -118,6 +124,11 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .seg.warmup { background: var(--warm); }
 .seg.round { background: var(--fight); }
 .seg.rest { background: var(--rest); }
+.seg.om, .tseg.om b { background: var(--om); }
+.seg.bhastrika, .tseg.bhastrika b { background: var(--bhastrika); }
+.seg.anulom, .tseg.anulom b { background: var(--anulom); }
+.seg.kapal, .tseg.kapal b { background: var(--kapal); }
+.seg.bhramari, .tseg.bhramari b { background: var(--bhramari); }
 .seg.gone { opacity: 0; }
 .plan-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
 .plan-legend span { display: inline-flex; align-items: center; gap: 6px; }
@@ -136,6 +147,9 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .start svg { width: 26px; height: 26px; fill: var(--gold); transform-origin: 50% 8%; }
 .start.ring svg { animation: swing .8s var(--ease); }
 @keyframes swing { 15% { transform: rotate(22deg); } 35% { transform: rotate(-18deg); } 55% { transform: rotate(12deg); } 75% { transform: rotate(-6deg); } }
+.start.calm { background: radial-gradient(120% 140% at 30% 0%, #eba650, #c2691f 55%, #7a3a0e); box-shadow: 0 14px 34px -14px rgba(230,145,58,.8), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -3px 0 rgba(0,0,0,.25); }
+.start.calm:disabled { opacity: .45; cursor: default; }
+.start .om { font: 400 30px/1 system-ui, sans-serif; letter-spacing: 0; color: #ffe9c9; }
 .start-note { text-align: center; font-size: 13px; color: var(--muted); margin-top: -10px; }
 #flash { position: fixed; inset: 0; z-index: 25; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 30%, rgba(255,238,210,.9), rgba(255,238,210,0) 65%); }
 
@@ -153,6 +167,16 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .tog i { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--fg); transition: transform .35s var(--spring); }
 .tog[aria-checked="true"] { background: var(--rest); }
 .tog[aria-checked="true"] i { transform: translateX(20px); }
+
+/* ---------- pranayam steps ---------- */
+.prow .ctext b { display: flex; align-items: center; gap: 8px; }
+.prow .ctext b i { width: 8px; height: 8px; border-radius: 2px; transform: rotate(45deg); flex: 0 0 auto; }
+.prow.off .ctext { opacity: .45; }
+.stepper { display: flex; align-items: center; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.stepper button { width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; color: var(--fg); font: 600 18px/1 var(--body); cursor: pointer; transition: background .25s var(--ease); }
+.stepper button:active { background: var(--line); }
+.stepper button:disabled { color: var(--line); cursor: default; }
+.stepper output { min-width: 50px; text-align: center; font: 600 14px var(--body); font-variant-numeric: tabular-nums; }
 
 /* ---------- live clock ---------- */
 #clock {
@@ -256,6 +280,20 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .entry .top b { font: 800 20px var(--display); letter-spacing: .02em; }
 .entry .when { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
 .entry .note { font-size: 14px; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
+.log.quiet .entry { animation: none; }
+.entry .tr { display: flex; align-items: center; gap: 4px; }
+.edel { width: 30px; height: 30px; margin: -6px -10px -6px 0; border: 0; border-radius: 50%; background: none; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; transition: background .25s var(--ease), color .25s var(--ease); }
+.edel:hover, .edel:focus-visible { background: var(--line); color: var(--fg); }
+.psum { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.psum span { display: inline-flex; align-items: center; gap: 5px; }
+.psum span.miss { opacity: .4; text-decoration: line-through; }
+.psum i { width: 7px; height: 7px; border-radius: 2px; transform: rotate(45deg); }
+.logseg button { flex: 1; }
+.clear-btn { justify-self: center; background: none; border: 1px solid var(--line); color: var(--muted); padding: 9px 16px; border-radius: 999px; font: 600 14px var(--body); cursor: pointer; transition: color .3s var(--ease), border-color .3s var(--ease), background .3s var(--ease); }
+.clear-btn.armed { color: #fff; border-color: var(--fight); background: rgba(212,54,43,.18); }
+.snack { position: fixed; left: 16px; right: 16px; margin-inline: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 15; width: fit-content; max-width: 420px; display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 16px; border-radius: 14px; background: #2a2528; border: 1px solid rgba(255,255,255,.08); color: var(--fg); font-size: 14px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.7); opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .35s var(--ease), transform .45s var(--ease); }
+.snack.show { opacity: 1; transform: none; pointer-events: auto; }
+.snack button { background: none; border: 0; color: var(--gold); font: 700 14px var(--body); padding: 8px 10px; border-radius: 10px; cursor: pointer; }
 .empty { background: var(--panel); border-radius: 18px; padding: 28px 20px; text-align: center; color: var(--muted); line-height: 1.5; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -271,7 +309,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
     <div class="brand">Ring<span>·</span>Clock</div>
     <div class="tabs" id="tabs" role="tablist" data-on="setup">
       <div class="pill"></div>
-      <button id="tabSetup" role="tab" aria-selected="true">Timer</button>
+      <button id="tabSetup" role="tab" aria-selected="true">Boxing</button>
+      <button id="tabPrana" role="tab" aria-selected="false">Pranayam</button>
       <button id="tabLog" role="tab" aria-selected="false">Log</button>
     </div>
   </header>
@@ -328,18 +367,48 @@ header { display: flex; align-items: center; justify-content: space-between; gap
       <div class="start-note" id="startNote"></div>
     </section>
 
+    <section class="view off" id="pranaView">
+      <div class="block">
+        <div class="section-head">Daily pranayam</div>
+        <div class="corner" id="pSteps"></div>
+        <div class="plan">
+          <div class="plan-top"><span class="label">Your practice</span><b id="pTotal"></b></div>
+          <div class="plan-bar" id="pBar"></div>
+        </div>
+        <button class="save-btn" id="pReset" hidden>Reset to 1 · 1 · 4 · 4 · 1 min</button>
+      </div>
+
+      <div class="block">
+        <div class="section-head">Guidance</div>
+        <div class="corner">
+          <div class="crow">
+            <div class="ctext"><b>Voice guide</b><span>Names each practice and calls every minute done</span></div>
+            <button class="tog" id="pVoiceTog" role="switch" aria-label="Voice guide"><i></i></button>
+          </div>
+        </div>
+      </div>
+
+      <button class="start calm" id="pStartBtn"><span class="om" aria-hidden="true">ॐ</span><span>Begin</span></button>
+      <div class="start-note">5 seconds to settle in · a soft bell and buzz every minute</div>
+    </section>
+
     <section class="view off" id="logView">
+      <div class="seg3 logseg" id="logSeg" role="radiogroup" aria-label="Which log">
+        <button role="radio" data-v="box">Boxing</button><button role="radio" data-v="prana">Pranayam</button>
+      </div>
       <div class="stats">
         <div class="stat"><b id="sSessions">0</b><span class="label">Sessions</span></div>
-        <div class="stat"><b id="sRounds">0</b><span class="label">Rounds</span></div>
-        <div class="stat"><b id="sTime">0:00</b><span class="label">Hours</span></div>
+        <div class="stat"><b id="sRounds">0</b><span class="label" id="sL2">Rounds</span></div>
+        <div class="stat"><b id="sTime">0:00</b><span class="label" id="sL3">Hours</span></div>
       </div>
       <div id="logList"></div>
+      <button class="clear-btn" id="clearLog" hidden>Clear log</button>
     </section>
   </div>
 </div>
 
 <div id="flash"></div>
+<div class="snack" id="snack" role="status"><span id="snackMsg"></span><button id="snackUndo">Undo</button></div>
 
 <div id="clock">
   <div class="ctop">
@@ -553,6 +622,20 @@ function bell(times = 1) {
     });
   }
 }
+function bowl(times = 1, base = 392, len = 4) { // softer singing-bowl tone for pranayam
+  const a = audio();
+  for (let n = 0; n < times; n++) {
+    const t0 = a.currentTime + n * 1.1;
+    [[1, .34], [2.76, .12], [5.4, .05]].forEach(([m, v]) => {
+      const o = a.createOscillator(), g = a.createGain();
+      o.frequency.value = base * m; o.type = 'sine';
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(v, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + len / Math.sqrt(m));
+      o.connect(g).connect(a.destination); o.start(t0); o.stop(t0 + len + 0.1);
+    });
+  }
+}
 function pip() {
   const a = audio(), o = a.createOscillator(), g = a.createGain(), t = a.currentTime;
   o.type = 'triangle'; o.frequency.value = 990;
@@ -578,7 +661,7 @@ function say(text, vol = 1) {
     if (!('speechSynthesis' in window)) return;
     const u = new SpeechSynthesisUtterance(text);
     if (voice) u.voice = voice;
-    u.rate = 1.2; u.pitch = 1; u.volume = vol;
+    u.rate = S?.kind === 'prana' ? 0.95 : 1.2; u.pitch = 1; u.volume = vol;
     speechSynthesis.cancel(); speechSynthesis.speak(u);
   } catch {}
 }
@@ -587,8 +670,9 @@ function say(text, vol = 1) {
    The timer runs on a wall-clock timeline: the current phase is always worked out
    from when the session started, minus time spent paused, plus time skipped.
    So if the screen locks or the app is closed, it picks up at the right spot. */
-const RGB = { ready: [84, 104, 138], warmup: [224, 161, 42], round: [212, 54, 43], rest: [47, 158, 91] };
-const prefs = Object.assign({ lead: 10, voice: true, vibe: true }, store.get('rc_prefs', {}));
+const RGB = { ready: [84, 104, 138], warmup: [224, 161, 42], round: [212, 54, 43], rest: [47, 158, 91],
+  om: [230, 145, 58], bhastrika: [222, 96, 64], anulom: [74, 144, 214], kapal: [168, 98, 214], bhramari: [62, 176, 150] };
+const prefs = Object.assign({ lead: 10, voice: true, vibe: true, pVoice: true, logKind: 'box' }, store.get('rc_prefs', {}));
 let S = null, L = null, raf, ticker, wake, paused = false, pending, hintT, toastT, rTimer;
 let lastIdx = -1, lastSec = -1, lastTick = 0, level = 1, col = [...RGB.round];
 const wall = () => Date.now();
@@ -624,6 +708,10 @@ const saveSession = () => store.set('rc_session', S);
 
 /* ---------- words ---------- */
 const isFinal = p => p && p.t === 'round' && p.n === S.meta.rounds && S.meta.rounds > 1;
+const calm = () => S?.kind === 'prana';
+const voiceOn = () => calm() ? prefs.pVoice : prefs.voice;
+const isMain = p => calm() ? p.t !== 'ready' : p.t === 'round';
+const gong = n => calm() ? bowl(n) : bell(n);
 const phaseTitle = p => p.t === 'round' ? `Round ${p.n}` : p.label;
 const nextName = n => isFinal(n) ? 'Final round' : phaseTitle(n);
 function speakDur(s) {
@@ -632,20 +720,22 @@ function speakDur(s) {
   return `${m} minute${m > 1 ? 's' : ''}${r ? ` ${r}` : ''}`;
 }
 function subText(p, n) {
+  if (calm()) return p.t === 'ready' ? (n ? `Sit tall · ${n.label} first` : 'Sit tall') : p.tip;
   if (p.t === 'ready') return n ? `Gloves on · ${nextName(n)} first` : 'Gloves on';
   if (p.t === 'warmup') return 'Loosen up';
   if (p.t === 'round') return `of ${S.meta.rounds}`;
   return n ? `${nextName(n)} next` : 'Breathe';
 }
 function announce(p, delay = 650) {
-  if (!prefs.voice) return;
-  const text = p.t === 'ready' ? 'Get ready'
+  if (!voiceOn()) return;
+  const text = calm() ? (p.t === 'ready' ? 'Sit comfortably. Close your eyes.' : `${p.label}. ${speakDur(p.s)}`)
+    : p.t === 'ready' ? 'Get ready'
     : p.t === 'warmup' ? `Warm up. ${speakDur(p.s)}`
     : p.t === 'rest' ? `Rest. ${speakDur(p.s)}`
     : isFinal(p) ? 'Final round' : `Round ${p.n}`;
   setTimeout(() => { if (S && !S.finished) say(text); }, delay);
 }
-function buzz(pattern) { if (prefs.vibe) { try { navigator.vibrate?.(pattern); } catch {} } }
+function buzz(pattern) { if (prefs.vibe || calm()) { try { navigator.vibrate?.(pattern); } catch {} } }
 function toast(msg, ms = 2800) {
   const el = $('toast'); el.textContent = msg; el.classList.add('show');
   clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), ms);
@@ -667,6 +757,16 @@ function start() {
   audio(); say(' ', 0); // the tap unlocks sound and speech on iPhone
   S = { phases: sessionPhases(), start: wall(), paused: 0, pausedAt: null, shift: 0,
         readyActive: 0, readyDone: !prefs.lead, meta: { ...cfg }, finished: false, early: false };
+  openClock('fresh');
+}
+function startPrana() {
+  audio(); say(' ', 0);
+  const phases = PRANA.map((x, i) => ({ t: x.k, s: pmins[i] * 60, label: x.name, tip: x.tip })).filter(p => p.s);
+  phases.forEach((p, i) => p.n = i + 1);
+  const meta = { rounds: phases.length };
+  phases.unshift({ t: 'ready', s: 5, label: 'Settle in' });
+  S = { kind: 'prana', phases, start: wall(), paused: 0, pausedAt: null, shift: 0,
+        readyActive: 0, readyDone: false, meta, finished: false, early: false };
   openClock('fresh');
 }
 function openClock(mode) {
@@ -704,7 +804,7 @@ function tick(mode) {
     const p = S.phases[loc.idx];
     $('cTime').textContent = fmt(sec);
     updateMeta(loc);
-    $('clock').classList.toggle('warn', !S.pausedAt && ((p.t === 'round' && sec <= 10) || sec <= 3));
+    $('clock').classList.toggle('warn', !S.pausedAt && !calm() && ((p.t === 'round' && sec <= 10) || sec <= 3));
     if (!first && live && !S.pausedAt) cues(loc, sec);
   }
 }
@@ -716,22 +816,22 @@ function enterPhase(loc, mode) {
   swapText($('cPhase'), phaseTitle(p), mode === 'fresh' || mode === 'resume');
   $('cBadge').hidden = !isFinal(p);
   $('cSub').textContent = S.pausedAt ? 'Paused' : subText(p, n);
-  $('cNext').textContent = n ? `Next: ${nextName(n)} · ${mm(n.s)}` : 'Last one. Empty the tank.';
-  const canAdd = p.t !== 'round';
+  $('cNext').textContent = n ? `Next: ${nextName(n)} · ${mm(n.s)}` : calm() ? 'Last one. Then sit in stillness.' : 'Last one. Empty the tank.';
+  const canAdd = p.t !== 'round' && !calm();
   $('bAdd').style.visibility = canAdd ? 'visible' : 'hidden';
   $('bAdd').textContent = p.t === 'rest' ? '+15s rest' : '+15s';
   $('bSkip').setAttribute('aria-label', n ? `Skip to ${nextName(n)}` : 'Finish session');
   updatePips(loc.idx); paintTrack(loc.idx);
 
   if (mode === 'fresh') {
-    if (p.t === 'ready') announce(p, 150); else { bell(1); buzz(300); announce(p); }
+    if (p.t === 'ready') announce(p, 150); else { gong(1); buzz(300); announce(p); }
   } else if (mode === 'resume') {
     announce(p, 250);
   } else if (mode === 'catchup') {
-    bell(1); buzz(300); announce(p);
+    gong(1); buzz(300); announce(p);
     toast(`Screen was off. Picking up at ${nextName(p)}.`, 3500);
   } else { // live change or skip
-    bell(p.t === 'round' ? 2 : 1);
+    if (calm()) gong(p.t === 'ready' ? 1 : 2); else bell(p.t === 'round' ? 2 : 1);
     buzz(p.t === 'round' ? [250, 120, 250] : 300);
     if (p.t === 'round' && !reduced) $('flash').animate([{ opacity: 0 }, { opacity: .8, offset: .2 }, { opacity: 0 }], { duration: 700, easing: 'cubic-bezier(.22,1,.36,1)' });
     announce(p);
@@ -740,14 +840,26 @@ function enterPhase(loc, mode) {
 }
 function cues(loc, sec) {
   const p = S.phases[loc.idx], n = S.phases[loc.idx + 1];
+  if (calm()) {
+    if (p.t === 'ready') { if (sec >= 1 && sec <= 3) countdown(sec); }
+    else if (sec < p.s && sec % 60 === 0) minuteCue(p, sec);
+    return; // the bell at each new practice marks those minutes
+  }
   if (sec === 10 && p.s > 15) {
     if (p.t === 'round') { clack(); buzz([60, 80, 60]); if (prefs.voice) setTimeout(() => say('Ten seconds'), 350); }
     else if (n && prefs.voice) say(`Ten seconds. ${nextName(n)} next`);
   }
   if (sec >= 1 && sec <= 3) countdown(sec);
 }
+// Pranayam: every full minute inside a practice gets a soft bell, a buzz, a toast and (optionally) a voice call.
+function minuteCue(p, sec) {
+  const done = (p.s - sec) / 60, left = sec / 60;
+  bowl(1, 660, 2.4); buzz([120, 80, 120]);
+  toast(`${done} min done · ${left} to go`, 2500);
+  if (voiceOn()) setTimeout(() => { if (S && !S.finished) say(`${done} minute${done > 1 ? 's' : ''} done. ${left} to go.`); }, 700);
+}
 function countdown(n) {
-  if (prefs.voice) say(['', 'One', 'Two', 'Three'][n]);
+  if (voiceOn()) say(['', 'One', 'Two', 'Three'][n]);
   pip(); buzz(40);
   if (reduced) return;
   const c = $('cCount'); c.textContent = n;
@@ -774,8 +886,8 @@ function paintTrack(idx) {
 }
 function buildPips() { $('pips').innerHTML = Array.from({ length: S.meta.rounds }, () => '<i></i>').join(''); }
 function updatePips(idx) {
-  const p = S.phases[idx], cur = p.t === 'round' ? p.n : 0;
-  const done = S.phases.slice(0, idx).filter(x => x.t === 'round').length;
+  const p = S.phases[idx], cur = isMain(p) ? p.n : 0;
+  const done = S.phases.slice(0, idx).filter(isMain).length;
   [...$('pips').children].forEach((el, i) => { el.classList.toggle('done', i < done); el.classList.toggle('now', i + 1 === cur); });
 }
 
@@ -793,18 +905,20 @@ function togglePause() {
   audio();
   if (S.pausedAt) {
     S.paused += wall() - S.pausedAt; S.pausedAt = null; lastTick = performance.now();
-    setPausedUI(false); if (prefs.voice) say('Go');
+    setPausedUI(false); if (voiceOn()) say('Go');
   } else {
     S.pausedAt = wall(); setPausedUI(true);
     try { speechSynthesis.cancel(); } catch {}
-    if (prefs.voice) say('Paused');
+    if (voiceOn()) say('Paused');
   }
   buzz(30); $('clock').classList.remove('warn');
   saveSession();
 }
 function skip() {
   if (!S || S.finished) return;
-  S.shift += locate().rem; lastTick = performance.now();
+  const l = locate();
+  (S.skipped ||= {})[l.idx] = l.into; // so the log only credits what was actually done
+  S.shift += l.rem; lastTick = performance.now();
   try { speechSynthesis.cancel(); } catch {}
   tick('skip');
 }
@@ -832,17 +946,32 @@ function finish(early, silent) {
   clearInterval(ticker); setPausedUI(true); $('clock').classList.remove('warn');
   try { wake?.release(); } catch {}
   if (!silent) {
-    bell(3); buzz([300, 150, 300, 150, 300]);
-    if (prefs.voice) setTimeout(() => say(early ? 'Session ended' : 'Session complete. Great work.'), 1300);
+    gong(3); buzz([300, 150, 300, 150, 300]);
+    if (voiceOn()) setTimeout(() => say(calm() ? (early ? 'Practice ended' : 'Pranayam complete. Om shanti.') : early ? 'Session ended' : 'Session complete. Great work.'), calm() ? 2600 : 1300);
   }
-  pending = { date: S.start, rounds, round: S.meta.round, rest: S.meta.rest, warmup: S.meta.warmup, total };
-  $('dTitle').textContent = early ? 'Session ended' : 'Session done';
-  $('dSummary').innerHTML = `<span>${rounds} of ${S.meta.rounds} rounds × ${mm(S.meta.round)}</span><b>${fmt(total)} total</b>`;
+  if (calm()) {
+    const credit = (p, i) => i > loc.idx ? 0 : S.skipped?.[i] ?? (i === loc.idx && !loc.done ? loc.into : p.s * 1000);
+    const steps = S.phases.map((p, i) => ({ k: p.t, s: Math.round(credit(p, i) / 1000) })).filter(x => x.k !== 'ready');
+    const ptotal = steps.reduce((a, x) => a + x.s, 0);
+    pending = { kind: 'prana', date: S.start, total: ptotal, steps };
+    $('dTitle').textContent = early ? 'Practice ended' : 'Pranayam done';
+    $('dSummary').innerHTML = `<span>${steps.filter(x => x.s).length} of ${steps.length} practices</span><b>${fmt(ptotal)} total</b>`;
+    $('dNote').placeholder = 'How did it feel? e.g. calm, left nostril a bit blocked';
+  } else {
+    pending = { date: S.start, rounds, round: S.meta.round, rest: S.meta.rest, warmup: S.meta.warmup, total };
+    $('dTitle').textContent = early ? 'Session ended' : 'Session done';
+    $('dSummary').innerHTML = `<span>${rounds} of ${S.meta.rounds} rounds × ${mm(S.meta.round)}</span><b>${fmt(total)} total</b>`;
+    $('dNote').placeholder = 'How did it feel? e.g. footwork sharp, gassed in round 3';
+  }
   $('dNote').value = '';
   $('done').classList.add('open');
 }
 function closeSession(save) {
-  if (save && pending) { const log = store.get('rc_log', []); log.unshift({ ...pending, note: $('dNote').value.trim() }); store.set('rc_log', log); }
+  if (save && pending) {
+    const kind = pending.kind === 'prana' ? 'prana' : 'box', log = store.get(LOGKEY[kind], []);
+    log.unshift({ ...pending, note: $('dNote').value.trim() }); store.set(LOGKEY[kind], log);
+    prefs.logKind = kind; store.set('rc_prefs', prefs);
+  }
   $('done').classList.remove('open');
   $('clock').classList.remove('open');
   store.set('rc_session', null); S = null; L = null; pending = null;
@@ -882,12 +1011,14 @@ function renderPrefs() {
   document.querySelectorAll('#leadSeg button').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.v === prefs.lead)));
   $('voiceTog').setAttribute('aria-checked', String(prefs.voice));
   $('vibeTog').setAttribute('aria-checked', String(prefs.vibe));
+  $('pVoiceTog').setAttribute('aria-checked', String(prefs.pVoice));
   $('startNote').textContent = prefs.lead ? `${prefs.lead} seconds to glove up, then the bell` : 'The bell rings as soon as you tap';
   store.set('rc_prefs', prefs);
 }
 document.querySelectorAll('#leadSeg button').forEach(b => b.onclick = () => { prefs.lead = +b.dataset.v; renderPrefs(); });
 $('voiceTog').onclick = () => { prefs.voice = !prefs.voice; renderPrefs(); if (prefs.voice) { audio(); say('Voice coach on'); } };
 $('vibeTog').onclick = () => { prefs.vibe = !prefs.vibe; renderPrefs(); buzz(40); };
+$('pVoiceTog').onclick = () => { prefs.pVoice = !prefs.pVoice; renderPrefs(); if (prefs.pVoice) { audio(); say('Voice guide on'); } };
 if (!('vibrate' in navigator)) $('vibeRow').hidden = true;
 
 /* ---------- dial (canvas) ---------- */
@@ -983,6 +1114,10 @@ $('startBtn').onclick = () => {
   if (!reduced) $('flash').animate([{ opacity: 0 }, { opacity: 1, offset: .25 }, { opacity: 0 }], { duration: 750, easing: 'cubic-bezier(.22,1,.36,1)' });
   start();
 };
+$('pStartBtn').onclick = () => {
+  if (!reduced) $('flash').animate([{ opacity: 0 }, { opacity: .7, offset: .25 }, { opacity: 0 }], { duration: 900, easing: 'cubic-bezier(.22,1,.36,1)' });
+  startPrana();
+};
 $('dialBtn').onclick = togglePause;
 $('dialBtn').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePause(); } });
 $('bPause').onclick = togglePause;
@@ -1015,42 +1150,132 @@ $('dSkip').onclick = () => closeSession(false);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S && !S.finished) { lock(); tick(); } });
 addEventListener('pagehide', () => { if (S) saveSession(); });
 
+/* ---------- pranayam setup ---------- */
+const PRANA = [
+  { k: 'om', name: 'Om chanting', short: 'Om', tip: 'Long, steady Om on every breath out' },
+  { k: 'bhastrika', name: 'Bhastrika', short: 'Bhastrika', tip: 'Deep, forceful breaths in and out' },
+  { k: 'anulom', name: 'Anulom Vilom', short: 'Anulom Vilom', tip: 'Alternate nostrils, slow and even' },
+  { k: 'kapal', name: 'Kapalbhati', short: 'Kapalbhati', tip: 'Sharp breaths out, belly snaps in' },
+  { k: 'bhramari', name: 'Bhramari', short: 'Bhramari', tip: 'Ears closed, hum like a bee' }
+];
+const PDEF = [1, 1, 4, 4, 1];
+let pmins = store.get('rc_prana', PDEF);
+if (!Array.isArray(pmins) || pmins.length !== PRANA.length) pmins = [...PDEF];
+function initPrana() {
+  $('pSteps').innerHTML = PRANA.map((x, i) => `<div class="crow prow" id="pr${i}">
+    <div class="ctext"><b><i style="background:var(--${x.k})"></i>${x.name}</b><span>${x.tip}</span></div>
+    <div class="stepper"><button data-d="-1" aria-label="Shorter ${x.name}">−</button><output></output><button data-d="1" aria-label="Longer ${x.name}">+</button></div>
+  </div>`).join('');
+  $('pBar').innerHTML = PRANA.map(x => `<i class="seg ${x.k}"></i>`).join('');
+  PRANA.forEach((x, i) => $('pr' + i).querySelectorAll('button').forEach(b => b.onclick = () => {
+    pmins[i] = Math.max(0, Math.min(15, pmins[i] + +b.dataset.d)); refreshPrana(); buzz(10);
+  }));
+  $('pReset').onclick = () => { pmins = [...PDEF]; refreshPrana(); };
+  refreshPrana();
+}
+function refreshPrana() {
+  PRANA.forEach((x, i) => {
+    const row = $('pr' + i), [less, more] = row.querySelectorAll('button');
+    row.querySelector('output').textContent = pmins[i] ? `${pmins[i]} min` : 'Off';
+    row.classList.toggle('off', !pmins[i]);
+    less.disabled = !pmins[i]; more.disabled = pmins[i] >= 15;
+    $('pBar').children[i].style.flexGrow = pmins[i];
+  });
+  const total = pmins.reduce((a, m) => a + m, 0);
+  $('pTotal').textContent = `${total} min`;
+  $('pStartBtn').disabled = !total;
+  $('pReset').hidden = pmins.join() === PDEF.join();
+  store.set('rc_prana', pmins);
+}
+
 /* ---------- log ---------- */
-function renderLog() {
-  const log = store.get('rc_log', []);
-  $('sSessions').textContent = log.length;
-  $('sRounds').textContent = log.reduce((a, e) => a + e.rounds, 0);
+const LOGKEY = { box: 'rc_log', prana: 'rc_plog' };
+let snackT, undoFn, clearArmed = false, clearT;
+function snack(msg, undo) {
+  $('snackMsg').textContent = msg; undoFn = undo;
+  $('snack').classList.add('show');
+  clearTimeout(snackT); snackT = setTimeout(() => { $('snack').classList.remove('show'); undoFn = null; }, 6000);
+}
+$('snackUndo').onclick = () => { if (undoFn) undoFn(); undoFn = null; clearTimeout(snackT); $('snack').classList.remove('show'); };
+function disarmClear() { clearArmed = false; clearTimeout(clearT); $('clearLog').classList.remove('armed'); }
+function streak(log) {
+  const days = new Set(log.map(e => new Date(e.date).toDateString()));
+  const d = new Date(); let n = 0;
+  if (!days.has(d.toDateString())) d.setDate(d.getDate() - 1); // not done today yet: the streak still counts up to yesterday
+  while (days.has(d.toDateString())) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function deleteEntry(i, el) {
+  const key = LOGKEY[prefs.logKind], log = store.get(key, []), before = log.slice();
+  log.splice(i, 1); store.set(key, log);
+  el.animate([{ opacity: 1, height: el.offsetHeight + 'px' }, { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0 }], { duration: reduced ? 1 : 260, easing: 'ease-in' })
+    .onfinish = () => renderLog(true);
+  snack('Session deleted', () => { store.set(key, before); renderLog(true); });
+}
+function renderLog(quiet) {
+  const kind = prefs.logKind, prana = kind === 'prana', log = store.get(LOGKEY[kind], []);
+  document.querySelectorAll('#logSeg button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === kind)));
   const secs = log.reduce((a, e) => a + e.total, 0);
-  $('sTime').textContent = `${Math.floor(secs/3600)}:${String(Math.floor(secs%3600/60)).padStart(2,'0')}`;
+  $('sSessions').textContent = log.length;
+  $('sL2').textContent = prana ? 'Day streak' : 'Rounds';
+  $('sRounds').textContent = prana ? streak(log) : log.reduce((a, e) => a + e.rounds, 0);
+  $('sL3').textContent = prana ? 'Minutes' : 'Hours';
+  $('sTime').textContent = prana ? Math.round(secs / 60) : `${Math.floor(secs/3600)}:${String(Math.floor(secs%3600/60)).padStart(2,'0')}`;
+  disarmClear();
+  $('clearLog').hidden = !log.length;
+  $('clearLog').textContent = prana ? 'Clear pranayam log' : 'Clear boxing log';
   if (!log.length) {
-    $('logList').innerHTML = `<div class="empty">No sessions yet.<br>Finish a timer session and save it, and it shows up here.</div>`;
+    $('logList').innerHTML = prana
+      ? `<div class="empty">No pranayam yet.<br>Finish a practice and save it, and it shows up here.</div>`
+      : `<div class="empty">No sessions yet.<br>Finish a timer session and save it, and it shows up here.</div>`;
     return;
   }
-  const wrap = document.createElement('div'); wrap.className = 'log';
+  const wrap = document.createElement('div'); wrap.className = 'log' + (quiet ? ' quiet' : '');
   log.forEach((e, i) => {
     const d = new Date(e.date);
     const when = d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
     const el = document.createElement('div'); el.className = 'entry';
     el.style.animationDelay = `${Math.min(i, 8) * 45}ms`;
-    el.innerHTML = `<div class="top"><b>${e.rounds} × ${fmt(e.round)}</b><span class="when">${fmt(e.total)}</span></div><div class="when">${when} · rest ${fmt(e.rest)}</div>`;
+    if (prana) {
+      const did = e.steps.filter(x => x.s).length;
+      el.innerHTML = `<div class="top"><b>${did === e.steps.length ? 'Full practice' : `${did} of ${e.steps.length} practices`}</b><span class="tr"><span class="when">${fmt(e.total)}</span></span></div><div class="when">${when}</div>`
+        + `<div class="psum">${e.steps.map(x => `<span class="${x.s ? '' : 'miss'}"><i style="background:var(--${x.k})"></i>${(PRANA.find(p => p.k === x.k) || { short: x.k }).short} ${mm(x.s)}</span>`).join('')}</div>`;
+    } else {
+      el.innerHTML = `<div class="top"><b>${e.rounds} × ${fmt(e.round)}</b><span class="tr"><span class="when">${fmt(e.total)}</span></span></div><div class="when">${when} · rest ${fmt(e.rest)}</div>`;
+    }
+    const del = document.createElement('button');
+    del.className = 'edel'; del.textContent = '×'; del.setAttribute('aria-label', `Delete session from ${when}`);
+    del.onclick = () => deleteEntry(i, el);
+    el.querySelector('.tr').append(del);
     if (e.note) { const n = document.createElement('div'); n.className = 'note'; n.textContent = e.note; el.append(n); }
     wrap.append(el);
   });
   $('logList').replaceChildren(wrap);
 }
+document.querySelectorAll('#logSeg button').forEach(b => b.onclick = () => { prefs.logKind = b.dataset.v; store.set('rc_prefs', prefs); renderLog(); });
+$('clearLog').onclick = () => {
+  const key = LOGKEY[prefs.logKind], log = store.get(key, []);
+  if (!clearArmed) {
+    clearArmed = true; $('clearLog').classList.add('armed');
+    $('clearLog').textContent = `Tap again to delete all ${log.length}`;
+    clearT = setTimeout(() => renderLog(true), 3500);
+    return;
+  }
+  store.set(key, []); renderLog();
+  snack('Log cleared', () => { store.set(key, log); renderLog(true); });
+};
 
+const VIEWS = { setup: ['tabSetup', 'setup'], prana: ['tabPrana', 'pranaView'], log: ['tabLog', 'logView'] };
 function tab(which) {
   $('tabs').dataset.on = which;
-  $('tabSetup').setAttribute('aria-selected', which === 'setup');
-  $('tabLog').setAttribute('aria-selected', which === 'log');
-  $('setup').classList.toggle('off', which !== 'setup');
-  $('logView').classList.toggle('off', which !== 'log');
+  Object.entries(VIEWS).forEach(([k, [t, v]]) => { $(t).setAttribute('aria-selected', k === which); $(v).classList.toggle('off', k !== which); });
   if (which === 'log') renderLog();
 }
 $('tabSetup').onclick = () => tab('setup');
+$('tabPrana').onclick = () => tab('prana');
 $('tabLog').onclick = () => tab('log');
 
-initSetup(); renderLog(); renderPrefs(); checkSaved();
+initSetup(); initPrana(); renderLog(); renderPrefs(); checkSaved();
 </script>
 
 <script>
