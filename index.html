@@ -169,6 +169,13 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .tog[aria-checked="true"] i { transform: translateX(20px); }
 
 /* ---------- pranayam steps ---------- */
+.prow { flex-wrap: nowrap; padding-left: 4px; position: relative; transition: transform .3s var(--ease); }
+.prow .ctext { flex: 1 1 auto; }
+.prow.dragging { z-index: 2; transition: none; background: var(--line); border-radius: 14px; box-shadow: 0 14px 30px -10px rgba(0,0,0,.8); }
+#pSteps.sorting .prow { border-top-color: transparent; }
+.grip { flex: 0 0 auto; width: 32px; height: 44px; margin-right: -4px; border: 0; border-radius: 10px; background: none; color: var(--muted); cursor: grab; touch-action: none; display: grid; place-items: center; }
+.grip svg { width: 18px; height: 18px; fill: currentColor; }
+.prow.dragging .grip { cursor: grabbing; color: var(--fg); }
 .prow .ctext b { display: flex; align-items: center; gap: 8px; }
 .prow .ctext b i { width: 8px; height: 8px; border-radius: 2px; transform: rotate(45deg); flex: 0 0 auto; }
 .prow.off .ctext { opacity: .45; }
@@ -294,6 +301,10 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .snack { position: fixed; left: 16px; right: 16px; margin-inline: auto; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 15; width: fit-content; max-width: 420px; display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 16px; border-radius: 14px; background: #2a2528; border: 1px solid rgba(255,255,255,.08); color: var(--fg); font-size: 14px; box-shadow: 0 10px 30px -10px rgba(0,0,0,.7); opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .35s var(--ease), transform .45s var(--ease); }
 .snack.show { opacity: 1; transform: none; pointer-events: auto; }
 .snack button { background: none; border: 0; color: var(--gold); font: 700 14px var(--body); padding: 8px 10px; border-radius: 10px; cursor: pointer; }
+.foot { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.foot button { background: none; border: 1px solid var(--line); color: var(--fg); padding: 8px 14px; border-radius: 999px; font: 600 13px var(--body); cursor: pointer; transition: transform .35s var(--spring), border-color .3s var(--ease); }
+.foot button:active { transform: scale(.95); }
+.foot button:disabled { color: var(--muted); cursor: default; }
 .empty { background: var(--panel); border-radius: 18px; padding: 28px 20px; text-align: center; color: var(--muted); line-height: 1.5; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -375,7 +386,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
           <div class="plan-top"><span class="label">Your practice</span><b id="pTotal"></b></div>
           <div class="plan-bar" id="pBar"></div>
         </div>
-        <button class="save-btn" id="pReset" hidden>Reset to 1 · 1 · 4 · 4 · 1 min</button>
+        <button class="save-btn" id="pReset" hidden>Reset to my usual order and times</button>
       </div>
 
       <div class="block">
@@ -405,6 +416,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
       <button class="clear-btn" id="clearLog" hidden>Clear log</button>
     </section>
   </div>
+
+  <footer class="foot"><span id="appVer"></span><button id="updBtn">Check for updates</button></footer>
 </div>
 
 <div id="flash"></div>
@@ -606,10 +619,21 @@ function initSetup() {
 }
 
 /* ---------- sound ---------- */
-let ac;
-function audio() { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); return ac; }
+/* Play nicely with music apps: a running AudioContext makes iPhone pause other audio.
+   So each cue asks for a "transient" session (iOS lowers the music instead of stopping it),
+   and the context is suspended as soon as the last cue fades so the music comes back up. */
+let ac, quietT, busyUntil = 0;
+function audio(holdSec = 0.3) {
+  ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+  try { if (navigator.audioSession) navigator.audioSession.type = 'transient'; } catch {}
+  if (ac.state !== 'running') ac.resume();
+  busyUntil = Math.max(busyUntil, performance.now() + holdSec * 1000);
+  clearTimeout(quietT);
+  quietT = setTimeout(() => { if (ac.state === 'running') ac.suspend(); }, busyUntil - performance.now() + 250);
+  return ac;
+}
 function bell(times = 1) {
-  const a = audio();
+  const a = audio(times * 0.42 + 1.9);
   for (let n = 0; n < times; n++) {
     const t0 = a.currentTime + n * 0.42;
     [880, 1320, 2210, 2960].forEach((f, i) => {
@@ -623,7 +647,7 @@ function bell(times = 1) {
   }
 }
 function bowl(times = 1, base = 392, len = 4) { // softer singing-bowl tone for pranayam
-  const a = audio();
+  const a = audio(times * 1.1 + len);
   for (let n = 0; n < times; n++) {
     const t0 = a.currentTime + n * 1.1;
     [[1, .34], [2.76, .12], [5.4, .05]].forEach(([m, v]) => {
@@ -643,7 +667,7 @@ function pip() {
   o.connect(g).connect(a.destination); o.start(t); o.stop(t + 0.25);
 }
 function clack() {
-  const a = audio();
+  const a = audio(0.4);
   [0, 0.17].forEach(d => {
     const o = a.createOscillator(), g = a.createGain(), t = a.currentTime + d;
     o.type = 'square'; o.frequency.value = 1500;
@@ -761,7 +785,7 @@ function start() {
 }
 function startPrana() {
   audio(); say(' ', 0);
-  const phases = PRANA.map((x, i) => ({ t: x.k, s: pmins[i] * 60, label: x.name, tip: x.tip })).filter(p => p.s);
+  const phases = pplan.map(({ k, m }) => ({ t: k, s: m * 60, label: PBY[k].name, tip: PBY[k].tip })).filter(p => p.s);
   phases.forEach((p, i) => p.n = i + 1);
   const meta = { rounds: phases.length };
   phases.unshift({ t: 'ready', s: 5, label: 'Settle in' });
@@ -1158,34 +1182,93 @@ const PRANA = [
   { k: 'kapal', name: 'Kapalbhati', short: 'Kapalbhati', tip: 'Sharp breaths out, belly snaps in' },
   { k: 'bhramari', name: 'Bhramari', short: 'Bhramari', tip: 'Ears closed, hum like a bee' }
 ];
-const PDEF = [1, 1, 4, 4, 1];
-let pmins = store.get('rc_prana', PDEF);
-if (!Array.isArray(pmins) || pmins.length !== PRANA.length) pmins = [...PDEF];
+const PBY = Object.fromEntries(PRANA.map(x => [x.k, x]));
+const PDEF = [['om', 1], ['bhastrika', 1], ['anulom', 4], ['kapal', 4], ['bhramari', 1]].map(([k, m]) => ({ k, m }));
+// The plan is the practices in the order you do them. Older saves were just minutes in the default order.
+let pplan = store.get('rc_prana', PDEF);
+if (Array.isArray(pplan) && pplan.length === PRANA.length && pplan.every(Number.isFinite)) pplan = PRANA.map((x, i) => ({ k: x.k, m: pplan[i] }));
+if (!Array.isArray(pplan) || pplan.length !== PRANA.length || !pplan.every(x => PBY[x?.k])) pplan = PDEF.map(x => ({ ...x }));
+const GRIP = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
 function initPrana() {
-  $('pSteps').innerHTML = PRANA.map((x, i) => `<div class="crow prow" id="pr${i}">
+  $('pSteps').innerHTML = PRANA.map(x => `<div class="crow prow" data-k="${x.k}">
+    <button class="grip" aria-label="Move ${x.name}. Drag, or use the up and down arrow keys">${GRIP}</button>
     <div class="ctext"><b><i style="background:var(--${x.k})"></i>${x.name}</b><span>${x.tip}</span></div>
     <div class="stepper"><button data-d="-1" aria-label="Shorter ${x.name}">−</button><output></output><button data-d="1" aria-label="Longer ${x.name}">+</button></div>
   </div>`).join('');
-  $('pBar').innerHTML = PRANA.map(x => `<i class="seg ${x.k}"></i>`).join('');
-  PRANA.forEach((x, i) => $('pr' + i).querySelectorAll('button').forEach(b => b.onclick = () => {
-    pmins[i] = Math.max(0, Math.min(15, pmins[i] + +b.dataset.d)); refreshPrana(); buzz(10);
-  }));
-  $('pReset').onclick = () => { pmins = [...PDEF]; refreshPrana(); };
+  $('pBar').innerHTML = PRANA.map(x => `<i class="seg ${x.k}" data-k="${x.k}"></i>`).join('');
+  [...$('pSteps').children].forEach(row => {
+    const k = row.dataset.k;
+    row.querySelectorAll('.stepper button').forEach(b => b.onclick = () => {
+      const step = pplan.find(x => x.k === k);
+      step.m = Math.max(0, Math.min(15, step.m + +b.dataset.d)); refreshPrana(); buzz(10);
+    });
+    dragRow(row);
+  });
+  $('pReset').onclick = () => { pplan = PDEF.map(x => ({ ...x })); refreshPrana(); };
   refreshPrana();
 }
-function refreshPrana() {
-  PRANA.forEach((x, i) => {
-    const row = $('pr' + i), [less, more] = row.querySelectorAll('button');
-    row.querySelector('output').textContent = pmins[i] ? `${pmins[i]} min` : 'Off';
-    row.classList.toggle('off', !pmins[i]);
-    less.disabled = !pmins[i]; more.disabled = pmins[i] >= 15;
-    $('pBar').children[i].style.flexGrow = pmins[i];
+function moveStep(from, to) {
+  if (to < 0 || to >= pplan.length || from === to) return;
+  pplan.splice(to, 0, pplan.splice(from, 1)[0]);
+  refreshPrana(); buzz(15);
+}
+// Drag a row by its grip: the row follows the finger, the others slide aside to show where it will land.
+function dragRow(row) {
+  const grip = row.querySelector('.grip');
+  let y0, from, to, rows, mids, h;
+  grip.addEventListener('pointerdown', e => {
+    e.preventDefault(); grip.setPointerCapture(e.pointerId);
+    rows = [...$('pSteps').children]; from = to = rows.indexOf(row); y0 = e.clientY;
+    h = row.getBoundingClientRect().height;
+    mids = rows.map(r => { const b = r.getBoundingClientRect(); return b.top + b.height / 2; });
+    row.classList.add('dragging'); $('pSteps').classList.add('sorting');
   });
-  const total = pmins.reduce((a, m) => a + m, 0);
+  grip.addEventListener('pointermove', e => {
+    if (!row.classList.contains('dragging')) return;
+    const dy = e.clientY - y0, mid = mids[from] + dy;
+    row.style.transform = `translateY(${dy}px)`;
+    const next = mids.filter((m, i) => i !== from && m < mid).length;
+    if (next !== to) { to = next; buzz(8); }
+    rows.forEach((r, i) => {
+      if (r === row) return;
+      const shift = from < to && i > from && i <= to ? -h : from > to && i >= to && i < from ? h : 0;
+      r.style.transform = shift ? `translateY(${shift}px)` : '';
+    });
+  });
+  const drop = () => {
+    if (!row.classList.contains('dragging')) return;
+    const before = row.getBoundingClientRect().top;
+    rows.forEach(r => { r.style.transition = 'none'; r.style.transform = ''; });
+    row.classList.remove('dragging'); $('pSteps').classList.remove('sorting');
+    if (to !== from) moveStep(from, to);
+    const after = row.getBoundingClientRect().top;
+    rows.forEach(r => { void r.offsetWidth; r.style.transition = ''; });
+    if (!reduced && before !== after) row.animate([{ transform: `translateY(${before - after}px)` }, { transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.22,1,.36,1)' });
+  };
+  grip.addEventListener('pointerup', drop);
+  grip.addEventListener('pointercancel', drop);
+  grip.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+    e.preventDefault();
+    const i = pplan.findIndex(x => x.k === row.dataset.k);
+    moveStep(i, i + (e.key === 'ArrowDown' ? 1 : -1)); grip.focus();
+  });
+}
+function refreshPrana() {
+  pplan.forEach(({ k, m }) => {
+    const row = $('pSteps').querySelector(`[data-k="${k}"]`), [less, more] = row.querySelectorAll('.stepper button');
+    $('pSteps').append(row);
+    row.querySelector('output').textContent = m ? `${m} min` : 'Off';
+    row.classList.toggle('off', !m);
+    less.disabled = !m; more.disabled = m >= 15;
+    const seg = $('pBar').querySelector(`[data-k="${k}"]`);
+    $('pBar').append(seg); seg.style.flexGrow = m;
+  });
+  const total = pplan.reduce((a, x) => a + x.m, 0);
   $('pTotal').textContent = `${total} min`;
   $('pStartBtn').disabled = !total;
-  $('pReset').hidden = pmins.join() === PDEF.join();
-  store.set('rc_prana', pmins);
+  $('pReset').hidden = JSON.stringify(pplan) === JSON.stringify(PDEF);
+  store.set('rc_prana', pplan);
 }
 
 /* ---------- log ---------- */
@@ -1279,6 +1362,22 @@ initSetup(); initPrana(); renderLog(); renderPrefs(); checkSaved();
 </script>
 
 <script>
+// Bump APP_VERSION together with CACHE in sw.js on every release; the update button compares it with the live copy.
+const APP_VERSION = 5;
+document.getElementById('appVer').textContent = `Version ${APP_VERSION}`;
+document.getElementById('updBtn').onclick = async () => {
+  const btn = document.getElementById('updBtn');
+  const show = (text, ms) => { btn.textContent = text; if (ms) setTimeout(() => { btn.textContent = 'Check for updates'; btn.disabled = false; }, ms); };
+  btn.disabled = true; show('Checking…');
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    await reg?.update().catch(() => {});
+    const html = await (await fetch('index.html', { cache: 'reload' })).text();
+    const live = +(html.match(/const APP_VERSION = (\d+)/) || [])[1];
+    if (live > APP_VERSION) { show(`Updating to version ${live}…`); setTimeout(() => location.reload(), 600); }
+    else show('You’re up to date', 2500);
+  } catch { show('Offline. Try again with internet', 3000); }
+};
 if ('serviceWorker' in navigator) {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }

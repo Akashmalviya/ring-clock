@@ -1,5 +1,5 @@
 // Ring Clock service worker: keeps the app working offline.
-const CACHE = 'ring-clock-v3';
+const CACHE = 'ring-clock-v5';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

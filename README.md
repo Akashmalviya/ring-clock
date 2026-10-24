@@ -14,4 +14,4 @@ The app has to be served over https for installing and offline mode to work.
 - **Android (Chrome):** open the link → menu (⋮) → Install app.
 
 ## Updating
-Change the files and upload again. Bump `CACHE` in sw.js (e.g. ring-clock-v2) so phones pick up the new version.
+Change the files and upload again. Bump `CACHE` in sw.js (e.g. ring-clock-v5) and `APP_VERSION` in index.html (e.g. 5) together. Phones update on next open, or tap "Check for updates" at the bottom of the app.
