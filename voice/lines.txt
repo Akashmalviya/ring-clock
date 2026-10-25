@@ -1,0 +1,121 @@
+# id|voice|words per minute|text  (run tools/make-voice.sh after editing)
+get-ready|Aman|200|Get ready
+warm-up|Aman|200|Warm up
+rest|Aman|200|Rest
+final-round|Aman|200|Final round
+ten-seconds|Aman|200|Ten seconds
+one|Aman|200|One
+two|Aman|200|Two
+three|Aman|200|Three
+go|Aman|200|Go
+paused|Aman|200|Paused
+session-ended|Aman|200|Session ended
+session-complete|Aman|200|Session complete. Great work.
+voice-coach-on|Aman|200|Voice coach on
+round-1|Aman|200|Round 1
+round-2|Aman|200|Round 2
+round-3|Aman|200|Round 3
+round-4|Aman|200|Round 4
+round-5|Aman|200|Round 5
+round-6|Aman|200|Round 6
+round-7|Aman|200|Round 7
+round-8|Aman|200|Round 8
+round-9|Aman|200|Round 9
+round-10|Aman|200|Round 10
+round-11|Aman|200|Round 11
+round-12|Aman|200|Round 12
+round-13|Aman|200|Round 13
+round-14|Aman|200|Round 14
+round-15|Aman|200|Round 15
+round-16|Aman|200|Round 16
+round-17|Aman|200|Round 17
+round-18|Aman|200|Round 18
+round-19|Aman|200|Round 19
+round-20|Aman|200|Round 20
+round-21|Aman|200|Round 21
+round-22|Aman|200|Round 22
+round-23|Aman|200|Round 23
+round-24|Aman|200|Round 24
+round-25|Aman|200|Round 25
+round-26|Aman|200|Round 26
+round-27|Aman|200|Round 27
+round-28|Aman|200|Round 28
+round-29|Aman|200|Round 29
+round-30|Aman|200|Round 30
+min-1|Aman|200|1 minute
+min-2|Aman|200|2 minutes
+min-3|Aman|200|3 minutes
+min-4|Aman|200|4 minutes
+min-5|Aman|200|5 minutes
+min-6|Aman|200|6 minutes
+min-7|Aman|200|7 minutes
+min-8|Aman|200|8 minutes
+min-9|Aman|200|9 minutes
+min-10|Aman|200|10 minutes
+min-11|Aman|200|11 minutes
+min-12|Aman|200|12 minutes
+min-13|Aman|200|13 minutes
+min-14|Aman|200|14 minutes
+min-15|Aman|200|15 minutes
+min-16|Aman|200|16 minutes
+min-17|Aman|200|17 minutes
+min-18|Aman|200|18 minutes
+min-19|Aman|200|19 minutes
+min-20|Aman|200|20 minutes
+settle|Tara|165|Sit comfortably. Close your eyes.
+om|Tara|165|Om chanting
+bhastrika|Tara|165|Bhastrika
+anulom|Tara|165|Anulom Vilom
+kapal|Tara|165|Kapalbhati
+bhramari|Tara|165|Bhramari
+practice-ended|Tara|165|Practice ended
+prana-complete|Tara|165|Pranayam complete. Om shanti.
+voice-guide-on|Tara|165|Voice guide on
+p-go|Tara|165|Go
+p-paused|Tara|165|Paused
+p-one|Tara|165|One
+p-two|Tara|165|Two
+p-three|Tara|165|Three
+pmin-1|Tara|165|1 minute
+pmin-2|Tara|165|2 minutes
+pmin-3|Tara|165|3 minutes
+pmin-4|Tara|165|4 minutes
+pmin-5|Tara|165|5 minutes
+pmin-6|Tara|165|6 minutes
+pmin-7|Tara|165|7 minutes
+pmin-8|Tara|165|8 minutes
+pmin-9|Tara|165|9 minutes
+pmin-10|Tara|165|10 minutes
+pmin-11|Tara|165|11 minutes
+pmin-12|Tara|165|12 minutes
+pmin-13|Tara|165|13 minutes
+pmin-14|Tara|165|14 minutes
+pmin-15|Tara|165|15 minutes
+done-1|Tara|165|1 minute done
+done-2|Tara|165|2 minutes done
+done-3|Tara|165|3 minutes done
+done-4|Tara|165|4 minutes done
+done-5|Tara|165|5 minutes done
+done-6|Tara|165|6 minutes done
+done-7|Tara|165|7 minutes done
+done-8|Tara|165|8 minutes done
+done-9|Tara|165|9 minutes done
+done-10|Tara|165|10 minutes done
+done-11|Tara|165|11 minutes done
+done-12|Tara|165|12 minutes done
+done-13|Tara|165|13 minutes done
+done-14|Tara|165|14 minutes done
+togo-1|Tara|165|1 to go
+togo-2|Tara|165|2 to go
+togo-3|Tara|165|3 to go
+togo-4|Tara|165|4 to go
+togo-5|Tara|165|5 to go
+togo-6|Tara|165|6 to go
+togo-7|Tara|165|7 to go
+togo-8|Tara|165|8 to go
+togo-9|Tara|165|9 to go
+togo-10|Tara|165|10 to go
+togo-11|Tara|165|11 to go
+togo-12|Tara|165|12 to go
+togo-13|Tara|165|13 to go
+togo-14|Tara|165|14 to go

@@ -367,6 +367,10 @@ header { display: flex; align-items: center; justify-content: space-between; gap
             <div class="ctext"><b>Voice coach</b><span>Calls each round, rest, 10 seconds and 3-2-1</span></div>
             <button class="tog" id="voiceTog" role="switch" aria-label="Voice coach"><i></i></button>
           </div>
+          <div class="crow">
+            <div class="ctext"><b>Play over my music</b><span>Music keeps playing under the bell. The silent switch mutes the app.</span></div>
+            <button class="tog mixTog" id="mixTog" role="switch" aria-label="Play over my music"><i></i></button>
+          </div>
           <div class="crow" id="vibeRow">
             <div class="ctext"><b>Vibrate on bell</b><span>For phones that support it</span></div>
             <button class="tog" id="vibeTog" role="switch" aria-label="Vibrate on bell"><i></i></button>
@@ -395,6 +399,10 @@ header { display: flex; align-items: center; justify-content: space-between; gap
           <div class="crow">
             <div class="ctext"><b>Voice guide</b><span>Names each practice and calls every minute done</span></div>
             <button class="tog" id="pVoiceTog" role="switch" aria-label="Voice guide"><i></i></button>
+          </div>
+          <div class="crow">
+            <div class="ctext"><b>Play over my music</b><span>Music keeps playing under the bell. The silent switch mutes the app.</span></div>
+            <button class="tog mixTog" id="pMixTog" role="switch" aria-label="Play over my music"><i></i></button>
           </div>
         </div>
       </div>
@@ -618,18 +626,22 @@ function initSetup() {
   requestAnimationFrame(() => setAllWheels(false));
 }
 
-/* ---------- sound ---------- */
-/* Play nicely with music apps: a running AudioContext makes iPhone pause other audio.
-   So each cue asks for a "transient" session (iOS lowers the music instead of stopping it),
-   and the context is suspended as soon as the last cue fades so the music comes back up. */
+/* ---------- sound ----------
+   iPhone decides per app whether its sound pauses other apps' music. A web page only gets one say in that:
+   navigator.audioSession.type, which must be set before the AudioContext is created.
+   "ambient" mixes with YouTube Music / Spotify (and obeys the silent switch); "playback" pauses them but rings on silent.
+   All sound, voice included, goes through Web Audio, because a web page can't stop iOS speechSynthesis from pausing music.
+   The context is suspended between cues so the app isn't holding audio for the whole session. */
 let ac, quietT, busyUntil = 0;
+function applySession() {
+  try { if (navigator.audioSession) navigator.audioSession.type = prefs.mix ? 'ambient' : 'playback'; } catch {}
+}
 function audio(holdSec = 0.3) {
-  ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-  try { if (navigator.audioSession) navigator.audioSession.type = 'transient'; } catch {}
+  if (!ac) { applySession(); ac = new (window.AudioContext || window.webkitAudioContext)(); }
   if (ac.state !== 'running') ac.resume();
   busyUntil = Math.max(busyUntil, performance.now() + holdSec * 1000);
   clearTimeout(quietT);
-  quietT = setTimeout(() => { if (ac.state === 'running') ac.suspend(); }, busyUntil - performance.now() + 250);
+  quietT = setTimeout(() => { if (ac?.state === 'running') ac.suspend(); }, busyUntil - performance.now() + 250);
   return ac;
 }
 function bell(times = 1) {
@@ -640,7 +652,7 @@ function bell(times = 1) {
       const o = a.createOscillator(), g = a.createGain();
       o.frequency.value = f; o.type = 'sine';
       g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(0.38 / (i + 1), t0 + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.5 / (i + 1), t0 + 0.008);
       g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.8 - i * 0.3);
       o.connect(g).connect(a.destination); o.start(t0); o.stop(t0 + 1.9);
     });
@@ -663,7 +675,7 @@ function bowl(times = 1, base = 392, len = 4) { // softer singing-bowl tone for 
 function pip() {
   const a = audio(), o = a.createOscillator(), g = a.createGain(), t = a.currentTime;
   o.type = 'triangle'; o.frequency.value = 990;
-  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.3, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.4, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
   o.connect(g).connect(a.destination); o.start(t); o.stop(t + 0.25);
 }
 function clack() {
@@ -675,19 +687,40 @@ function clack() {
     o.connect(g).connect(a.destination); o.start(t); o.stop(t + 0.08);
   });
 }
-let voice;
-function pickVoice() {
-  try { const v = speechSynthesis.getVoices(); voice = v.find(x => /^en(-|_)(IN|GB|US)/i.test(x.lang)) || v.find(x => /^en/i.test(x.lang)) || null; } catch {}
+/* Voice: short recorded clips (voice/<id>.m4a, made by tools/make-voice.sh) played back to back. */
+const clipRaw = new Map(), clipBuf = new Map();
+let voiceSrc = [], voiceGen = 0;
+function loadClip(id) {
+  if (!clipRaw.has(id)) {
+    const p = fetch(`voice/${id}.m4a`).then(r => r.ok ? r.arrayBuffer() : Promise.reject(id));
+    p.catch(() => clipRaw.delete(id)); clipRaw.set(id, p);
+  }
+  return clipRaw.get(id);
 }
-try { speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); } catch {}
-function say(text, vol = 1) {
-  try {
-    if (!('speechSynthesis' in window)) return;
-    const u = new SpeechSynthesisUtterance(text);
-    if (voice) u.voice = voice;
-    u.rate = S?.kind === 'prana' ? 0.95 : 1.2; u.pitch = 1; u.volume = vol;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
-  } catch {}
+async function clip(id) {
+  if (!clipBuf.has(id)) clipBuf.set(id, await audio().decodeAudioData((await loadClip(id)).slice(0)));
+  return clipBuf.get(id);
+}
+function stopVoice() { voiceGen++; voiceSrc.forEach(x => { try { x.stop(); } catch {} }); voiceSrc = []; }
+async function say(...ids) {
+  stopVoice(); const gen = voiceGen;
+  let bufs;
+  try { bufs = await Promise.all(ids.filter(Boolean).map(clip)); } catch { return; }
+  if (gen !== voiceGen || !bufs.length) return;
+  const a = audio(bufs.reduce((t, b) => t + b.duration + 0.05, 0.1));
+  let t = a.currentTime + 0.02;
+  voiceSrc = bufs.map(b => {
+    const src = a.createBufferSource(), g = a.createGain();
+    src.buffer = b; g.gain.value = 1.3;
+    src.connect(g).connect(a.destination); src.start(t); t += b.duration + 0.05;
+    return src;
+  });
+}
+// Fetch every clip once so the service worker keeps them for offline use.
+function prefetchVoice() {
+  fetch('voice/lines.txt').then(r => r.text()).then(txt => {
+    txt.split('\n').filter(l => l && l[0] !== '#').forEach(l => loadClip(l.split('|')[0]));
+  }).catch(() => {});
 }
 
 /* ---------- session ----------
@@ -696,7 +729,7 @@ function say(text, vol = 1) {
    So if the screen locks or the app is closed, it picks up at the right spot. */
 const RGB = { ready: [84, 104, 138], warmup: [224, 161, 42], round: [212, 54, 43], rest: [47, 158, 91],
   om: [230, 145, 58], bhastrika: [222, 96, 64], anulom: [74, 144, 214], kapal: [168, 98, 214], bhramari: [62, 176, 150] };
-const prefs = Object.assign({ lead: 10, voice: true, vibe: true, pVoice: true, logKind: 'box' }, store.get('rc_prefs', {}));
+const prefs = Object.assign({ lead: 10, voice: true, vibe: true, pVoice: true, mix: true, logKind: 'box' }, store.get('rc_prefs', {}));
 let S = null, L = null, raf, ticker, wake, paused = false, pending, hintT, toastT, rTimer;
 let lastIdx = -1, lastSec = -1, lastTick = 0, level = 1, col = [...RGB.round];
 const wall = () => Date.now();
@@ -738,11 +771,9 @@ const isMain = p => calm() ? p.t !== 'ready' : p.t === 'round';
 const gong = n => calm() ? bowl(n) : bell(n);
 const phaseTitle = p => p.t === 'round' ? `Round ${p.n}` : p.label;
 const nextName = n => isFinal(n) ? 'Final round' : phaseTitle(n);
-function speakDur(s) {
-  const m = Math.floor(s / 60), r = s % 60;
-  if (!m) return `${r} seconds`;
-  return `${m} minute${m > 1 ? 's' : ''}${r ? ` ${r}` : ''}`;
-}
+const durClip = (s, pre, max) => s % 60 === 0 && s / 60 >= 1 && s / 60 <= max ? `${pre}-${s / 60}` : null;
+const nameClip = p => !p ? null : isFinal(p) ? 'final-round' : p.t === 'round' ? `round-${p.n}` : p.t === 'rest' ? 'rest' : p.t === 'warmup' ? 'warm-up' : null;
+const word = w => calm() ? `p-${w}` : w; // pranayam has its own calmer voice for shared words
 function subText(p, n) {
   if (calm()) return p.t === 'ready' ? (n ? `Sit tall · ${n.label} first` : 'Sit tall') : p.tip;
   if (p.t === 'ready') return n ? `Gloves on · ${nextName(n)} first` : 'Gloves on';
@@ -752,12 +783,12 @@ function subText(p, n) {
 }
 function announce(p, delay = 650) {
   if (!voiceOn()) return;
-  const text = calm() ? (p.t === 'ready' ? 'Sit comfortably. Close your eyes.' : `${p.label}. ${speakDur(p.s)}`)
-    : p.t === 'ready' ? 'Get ready'
-    : p.t === 'warmup' ? `Warm up. ${speakDur(p.s)}`
-    : p.t === 'rest' ? `Rest. ${speakDur(p.s)}`
-    : isFinal(p) ? 'Final round' : `Round ${p.n}`;
-  setTimeout(() => { if (S && !S.finished) say(text); }, delay);
+  const ids = calm() ? (p.t === 'ready' ? ['settle'] : [p.t, durClip(p.s, 'pmin', 15)])
+    : p.t === 'ready' ? ['get-ready']
+    : p.t === 'warmup' ? ['warm-up', durClip(p.s, 'min', 20)]
+    : p.t === 'rest' ? ['rest', durClip(p.s, 'min', 20)]
+    : [nameClip(p)];
+  setTimeout(() => { if (S && !S.finished) say(...ids); }, delay);
 }
 function buzz(pattern) { if (prefs.vibe || calm()) { try { navigator.vibrate?.(pattern); } catch {} } }
 function toast(msg, ms = 2800) {
@@ -778,13 +809,13 @@ function swapText(el, text, instant) {
 
 /* ---------- start / open ---------- */
 function start() {
-  audio(); say(' ', 0); // the tap unlocks sound and speech on iPhone
+  audio(); // the tap unlocks sound on iPhone
   S = { phases: sessionPhases(), start: wall(), paused: 0, pausedAt: null, shift: 0,
         readyActive: 0, readyDone: !prefs.lead, meta: { ...cfg }, finished: false, early: false };
   openClock('fresh');
 }
 function startPrana() {
-  audio(); say(' ', 0);
+  audio();
   const phases = pplan.map(({ k, m }) => ({ t: k, s: m * 60, label: PBY[k].name, tip: PBY[k].tip })).filter(p => p.s);
   phases.forEach((p, i) => p.n = i + 1);
   const meta = { rounds: phases.length };
@@ -870,8 +901,8 @@ function cues(loc, sec) {
     return; // the bell at each new practice marks those minutes
   }
   if (sec === 10 && p.s > 15) {
-    if (p.t === 'round') { clack(); buzz([60, 80, 60]); if (prefs.voice) setTimeout(() => say('Ten seconds'), 350); }
-    else if (n && prefs.voice) say(`Ten seconds. ${nextName(n)} next`);
+    if (p.t === 'round') { clack(); buzz([60, 80, 60]); if (prefs.voice) setTimeout(() => say('ten-seconds'), 350); }
+    else if (n && prefs.voice) say('ten-seconds', nameClip(n));
   }
   if (sec >= 1 && sec <= 3) countdown(sec);
 }
@@ -880,10 +911,10 @@ function minuteCue(p, sec) {
   const done = (p.s - sec) / 60, left = sec / 60;
   bowl(1, 660, 2.4); buzz([120, 80, 120]);
   toast(`${done} min done · ${left} to go`, 2500);
-  if (voiceOn()) setTimeout(() => { if (S && !S.finished) say(`${done} minute${done > 1 ? 's' : ''} done. ${left} to go.`); }, 700);
+  if (voiceOn()) setTimeout(() => { if (S && !S.finished) say(`done-${done}`, `togo-${left}`); }, 700);
 }
 function countdown(n) {
-  if (voiceOn()) say(['', 'One', 'Two', 'Three'][n]);
+  if (voiceOn()) say(word(['', 'one', 'two', 'three'][n]));
   pip(); buzz(40);
   if (reduced) return;
   const c = $('cCount'); c.textContent = n;
@@ -929,11 +960,10 @@ function togglePause() {
   audio();
   if (S.pausedAt) {
     S.paused += wall() - S.pausedAt; S.pausedAt = null; lastTick = performance.now();
-    setPausedUI(false); if (voiceOn()) say('Go');
+    setPausedUI(false); if (voiceOn()) say(word('go'));
   } else {
     S.pausedAt = wall(); setPausedUI(true);
-    try { speechSynthesis.cancel(); } catch {}
-    if (voiceOn()) say('Paused');
+    if (voiceOn()) say(word('paused'));
   }
   buzz(30); $('clock').classList.remove('warn');
   saveSession();
@@ -943,7 +973,7 @@ function skip() {
   const l = locate();
   (S.skipped ||= {})[l.idx] = l.into; // so the log only credits what was actually done
   S.shift += l.rem; lastTick = performance.now();
-  try { speechSynthesis.cancel(); } catch {}
+  stopVoice();
   tick('skip');
 }
 function extend() {
@@ -955,7 +985,7 @@ function extend() {
   toast(p.t === 'rest' ? '15 more seconds of rest' : '15 more seconds', 1600);
   buzz(20);
 }
-function endEarly() { if (!S || S.finished) return; try { speechSynthesis.cancel(); } catch {} finish(true); }
+function endEarly() { if (!S || S.finished) return; stopVoice(); finish(true); }
 
 function finish(early, silent) {
   if (!S) return;
@@ -971,7 +1001,7 @@ function finish(early, silent) {
   try { wake?.release(); } catch {}
   if (!silent) {
     gong(3); buzz([300, 150, 300, 150, 300]);
-    if (voiceOn()) setTimeout(() => say(calm() ? (early ? 'Practice ended' : 'Pranayam complete. Om shanti.') : early ? 'Session ended' : 'Session complete. Great work.'), calm() ? 2600 : 1300);
+    if (voiceOn()) setTimeout(() => say(calm() ? (early ? 'practice-ended' : 'prana-complete') : early ? 'session-ended' : 'session-complete'), calm() ? 2600 : 1300);
   }
   if (calm()) {
     const credit = (p, i) => i > loc.idx ? 0 : S.skipped?.[i] ?? (i === loc.idx && !loc.done ? loc.into : p.s * 1000);
@@ -1024,7 +1054,7 @@ function checkSaved() {
 }
 $('rGo').onclick = () => {
   clearInterval(rTimer); $('resume').classList.remove('open');
-  audio(); say(' ', 0);
+  audio();
   if (locate().done) { finish(false); return; }
   openClock('resume');
 };
@@ -1036,13 +1066,20 @@ function renderPrefs() {
   $('voiceTog').setAttribute('aria-checked', String(prefs.voice));
   $('vibeTog').setAttribute('aria-checked', String(prefs.vibe));
   $('pVoiceTog').setAttribute('aria-checked', String(prefs.pVoice));
+  document.querySelectorAll('.mixTog').forEach(t => t.setAttribute('aria-checked', String(prefs.mix)));
   $('startNote').textContent = prefs.lead ? `${prefs.lead} seconds to glove up, then the bell` : 'The bell rings as soon as you tap';
   store.set('rc_prefs', prefs);
 }
 document.querySelectorAll('#leadSeg button').forEach(b => b.onclick = () => { prefs.lead = +b.dataset.v; renderPrefs(); });
-$('voiceTog').onclick = () => { prefs.voice = !prefs.voice; renderPrefs(); if (prefs.voice) { audio(); say('Voice coach on'); } };
+$('voiceTog').onclick = () => { prefs.voice = !prefs.voice; renderPrefs(); if (prefs.voice) { audio(); say('voice-coach-on'); } };
 $('vibeTog').onclick = () => { prefs.vibe = !prefs.vibe; renderPrefs(); buzz(40); };
-$('pVoiceTog').onclick = () => { prefs.pVoice = !prefs.pVoice; renderPrefs(); if (prefs.pVoice) { audio(); say('Voice guide on'); } };
+// iOS fixes the session type when the AudioContext is made, so start a fresh one after a change.
+document.querySelectorAll('.mixTog').forEach(t => t.onclick = () => {
+  prefs.mix = !prefs.mix; renderPrefs();
+  if (ac) { ac.close().catch(() => {}); ac = null; }
+  bell(1);
+});
+$('pVoiceTog').onclick = () => { prefs.pVoice = !prefs.pVoice; renderPrefs(); if (prefs.pVoice) { audio(); say('voice-guide-on'); } };
 if (!('vibrate' in navigator)) $('vibeRow').hidden = true;
 
 /* ---------- dial (canvas) ---------- */
@@ -1358,12 +1395,13 @@ $('tabSetup').onclick = () => tab('setup');
 $('tabPrana').onclick = () => tab('prana');
 $('tabLog').onclick = () => tab('log');
 
-initSetup(); initPrana(); renderLog(); renderPrefs(); checkSaved();
+initSetup(); initPrana(); renderLog(); renderPrefs(); applySession(); checkSaved();
+setTimeout(prefetchVoice, 3000);
 </script>
 
 <script>
 // Bump APP_VERSION together with CACHE in sw.js on every release; the update button compares it with the live copy.
-const APP_VERSION = 5;
+const APP_VERSION = 6;
 document.getElementById('appVer').textContent = `Version ${APP_VERSION}`;
 document.getElementById('updBtn').onclick = async () => {
   const btn = document.getElementById('updBtn');
