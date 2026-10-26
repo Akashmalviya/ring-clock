@@ -34,7 +34,8 @@ img { max-width: 100%; }
   --warm: #e0a12a;   /* warm-up */
   --fight: #d4362b;  /* round */
   --rest: #2f9e5b;   /* rest */
-  --om: #e6913a; --bhastrika: #de6040; --anulom: #4a90d6; --kapal: #a862d6; --bhramari: #3eb096; /* pranayam practices */
+  --om: #e6913a; --bhastrika: #de6040; --anulom: #4a90d6; --kapal: #a862d6; --bhramari: #3eb096; --tratak: #e8c547; /* pranayam practices */
+  --plank: #2bb3c0;
   --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --cond: "Barlow Condensed", "Arial Narrow", sans-serif;
   --body: "Barlow", "Segoe UI", system-ui, sans-serif;
@@ -59,21 +60,22 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .brand span { color: var(--fight); }
 
 .tabs { position: relative; display: flex; background: var(--panel); border-radius: 999px; padding: 4px; }
-.tabs .pill { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 999px; background: var(--line); transition: transform .5s var(--ease); }
+.tabs .pill { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 4); border-radius: 999px; background: var(--line); transition: transform .5s var(--ease); }
 .tabs[data-on="prana"] .pill { transform: translateX(100%); }
-.tabs[data-on="log"] .pill { transform: translateX(200%); }
+.tabs[data-on="plank"] .pill { transform: translateX(200%); }
+.tabs[data-on="log"] .pill { transform: translateX(300%); }
 .tabs button { position: relative; z-index: 1; width: 76px; background: none; border: 0; color: var(--muted); font: 600 14px var(--body); padding: 8px 0; border-radius: 999px; cursor: pointer; transition: color .4s var(--ease); }
 .tabs button[aria-selected="true"] { color: var(--fg); }
-@media (max-width: 420px) {
-  .brand { font-size: 22px; }
-  .tabs button { width: 66px; font-size: 13px; }
+@media (max-width: 520px) { /* four tabs: give them their own full-width row */
+  .tabs { flex: 1 1 100%; }
+  .tabs button { flex: 1; width: auto; }
 }
 
 .stage { display: grid; }
 .view { grid-area: 1 / 1; display: grid; gap: 22px; align-content: start; min-width: 0; transition: opacity .5s var(--ease), transform .6s var(--ease), visibility 0s .6s; }
 .view.off { opacity: 0; visibility: hidden; pointer-events: none; }
 #setup.off { transform: translateX(-28px); }
-#logView.off, #pranaView.off { transform: translateX(28px); }
+#logView.off, #pranaView.off, #plankView.off { transform: translateX(28px); }
 .view:not(.off) { transition: opacity .5s var(--ease), transform .6s var(--ease), visibility 0s; }
 
 .label { font: 700 12px var(--cond); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
@@ -129,6 +131,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .seg.anulom, .tseg.anulom b { background: var(--anulom); }
 .seg.kapal, .tseg.kapal b { background: var(--kapal); }
 .seg.bhramari, .tseg.bhramari b { background: var(--bhramari); }
+.seg.tratak, .tseg.tratak b { background: var(--tratak); }
+.tseg.plank b { background: var(--plank); }
 .seg.gone { opacity: 0; }
 .plan-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
 .plan-legend span { display: inline-flex; align-items: center; gap: 6px; }
@@ -149,6 +153,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 @keyframes swing { 15% { transform: rotate(22deg); } 35% { transform: rotate(-18deg); } 55% { transform: rotate(12deg); } 75% { transform: rotate(-6deg); } }
 .start.calm { background: radial-gradient(120% 140% at 30% 0%, #eba650, #c2691f 55%, #7a3a0e); box-shadow: 0 14px 34px -14px rgba(230,145,58,.8), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -3px 0 rgba(0,0,0,.25); }
 .start.calm:disabled { opacity: .45; cursor: default; }
+.start.core { background: radial-gradient(120% 140% at 30% 0%, #45cbd6, #17899a 55%, #0b4a55); box-shadow: 0 14px 34px -14px rgba(43,179,192,.8), inset 0 1px 0 rgba(255,255,255,.25), inset 0 -3px 0 rgba(0,0,0,.25); }
+.start.core svg { fill: #fff; }
 .start .om { font: 400 30px/1 system-ui, sans-serif; letter-spacing: 0; color: #ffe9c9; }
 .start-note { text-align: center; font-size: 13px; color: var(--muted); margin-top: -10px; }
 #flash { position: fixed; inset: 0; z-index: 25; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 30%, rgba(255,238,210,.9), rgba(255,238,210,0) 65%); }
@@ -183,6 +189,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .stepper button { width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; color: var(--fg); font: 600 18px/1 var(--body); cursor: pointer; transition: background .25s var(--ease); }
 .stepper button:active { background: var(--line); }
 .stepper button:disabled { color: var(--line); cursor: default; }
+.prow .tog { margin-left: 2px; }
 .stepper output { min-width: 50px; text-align: center; font: 600 14px var(--body); font-variant-numeric: tabular-nums; }
 
 /* ---------- live clock ---------- */
@@ -293,6 +300,9 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .edel:hover, .edel:focus-visible { background: var(--line); color: var(--fg); }
 .psum { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .psum span { display: inline-flex; align-items: center; gap: 5px; }
+.kmeta { font-size: 14px; color: var(--muted); }
+.card .crow { padding: 0; }
+.entry .pb { margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(217,164,65,.15); color: var(--gold); font: 700 11px var(--cond); letter-spacing: .14em; text-transform: uppercase; vertical-align: middle; }
 .psum span.miss { opacity: .4; text-decoration: line-through; }
 .psum i { width: 7px; height: 7px; border-radius: 2px; transform: rotate(45deg); }
 .logseg button { flex: 1; }
@@ -322,6 +332,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
       <div class="pill"></div>
       <button id="tabSetup" role="tab" aria-selected="true">Boxing</button>
       <button id="tabPrana" role="tab" aria-selected="false">Pranayam</button>
+      <button id="tabPlank" role="tab" aria-selected="false">Plank</button>
       <button id="tabLog" role="tab" aria-selected="false">Log</button>
     </div>
   </header>
@@ -411,9 +422,42 @@ header { display: flex; align-items: center; justify-content: space-between; gap
       <div class="start-note">5 seconds to settle in · a soft bell and buzz every minute</div>
     </section>
 
+    <section class="view off" id="plankView">
+      <div class="block">
+        <div class="section-head">Plank</div>
+        <div class="plan">
+          <div class="plan-top"><span class="label">Personal best</span><b id="kBest">–</b></div>
+          <div class="kmeta" id="kLast"></div>
+        </div>
+        <div class="corner">
+          <div class="crow">
+            <div class="ctext"><b>Weight on you</b><span>A plate on your back, if you use one</span></div>
+            <div class="stepper" id="kKg"><button data-d="-1" aria-label="Less weight">−</button><output></output><button data-d="1" aria-label="More weight">+</button></div>
+          </div>
+          <div class="crow">
+            <div class="ctext"><b>Bell every</b><span>Rings and buzzes while you hold</span></div>
+            <div class="seg3" id="kEvery" role="radiogroup" aria-label="Bell every">
+              <button role="radio" data-v="15">15s</button><button role="radio" data-v="30">30s</button><button role="radio" data-v="60">1 min</button>
+            </div>
+          </div>
+          <div class="crow">
+            <div class="ctext"><b>Voice calls the time</b><span>“1 minute, 30 seconds” at each bell</span></div>
+            <button class="tog" id="kVoiceTog" role="switch" aria-label="Voice calls the time"><i></i></button>
+          </div>
+          <div class="crow">
+            <div class="ctext"><b>Play over my music</b><span>Music keeps playing under the bell. The silent switch mutes the app.</span></div>
+            <button class="tog mixTog" id="kMixTog" role="switch" aria-label="Play over my music"><i></i></button>
+          </div>
+        </div>
+      </div>
+
+      <button class="start core" id="kStartBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 1h6v2H9zM12 4a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm0 2a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm-1 2h2v5.4l3.3 2-1 1.7L11 14.6z"/></svg><span>Start plank</span></button>
+      <div class="start-note" id="kNote"></div>
+    </section>
+
     <section class="view off" id="logView">
       <div class="seg3 logseg" id="logSeg" role="radiogroup" aria-label="Which log">
-        <button role="radio" data-v="box">Boxing</button><button role="radio" data-v="prana">Pranayam</button>
+        <button role="radio" data-v="box">Boxing</button><button role="radio" data-v="prana">Pranayam</button><button role="radio" data-v="plank">Plank</button>
       </div>
       <div class="stats">
         <div class="stat"><b id="sSessions">0</b><span class="label">Sessions</span></div>
@@ -455,7 +499,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   <div class="controls">
     <button id="bStop" class="hold" aria-label="Hold to end session"><svg class="holdring" viewBox="0 0 70 70" aria-hidden="true"><circle cx="35" cy="35" r="32"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg></button>
     <button id="bPause" aria-label="Pause"><svg viewBox="0 0 24 24" id="iPause" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button>
-    <button id="bSkip" aria-label="Skip to next phase"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l9 7-9 7zM16 5h3v14h-3z"/></svg></button>
+    <button id="bSkip" aria-label="Skip to next phase"><svg viewBox="0 0 24 24" id="iSkip" aria-hidden="true"><path d="M5 5l9 7-9 7zM16 5h3v14h-3z"/></svg></button>
   </div>
   <div class="taphint" id="taphint">Tap the clock to pause · Hold ■ to end</div>
   <div class="toast" id="toast" role="status"></div>
@@ -465,6 +509,10 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   <div class="card">
     <h2 id="dTitle">Session done</h2>
     <div class="summary" id="dSummary"></div>
+    <div class="crow" id="dKgRow" hidden>
+      <div class="ctext"><b>Weight on you</b></div>
+      <div class="stepper" id="dKg"><button data-d="-1" aria-label="Less weight">−</button><output></output><button data-d="1" aria-label="More weight">+</button></div>
+    </div>
     <label class="label" for="dNote">Note (optional)</label>
     <textarea id="dNote" placeholder="How did it feel? e.g. footwork sharp, gassed in round 3"></textarea>
     <div class="actions"><button class="btn" id="dSkip">Skip</button><button class="btn primary" id="dSave">Save to log</button></div>
@@ -728,8 +776,9 @@ function prefetchVoice() {
    from when the session started, minus time spent paused, plus time skipped.
    So if the screen locks or the app is closed, it picks up at the right spot. */
 const RGB = { ready: [84, 104, 138], warmup: [224, 161, 42], round: [212, 54, 43], rest: [47, 158, 91],
-  om: [230, 145, 58], bhastrika: [222, 96, 64], anulom: [74, 144, 214], kapal: [168, 98, 214], bhramari: [62, 176, 150] };
-const prefs = Object.assign({ lead: 10, voice: true, vibe: true, pVoice: true, mix: true, logKind: 'box' }, store.get('rc_prefs', {}));
+  om: [230, 145, 58], bhastrika: [222, 96, 64], anulom: [74, 144, 214], kapal: [168, 98, 214], bhramari: [62, 176, 150], tratak: [232, 197, 71],
+  plank: [43, 179, 192] };
+const prefs = Object.assign({ lead: 10, voice: true, vibe: true, pVoice: true, kVoice: true, kKg: 0, kEvery: 30, mix: true, logKind: 'box' }, store.get('rc_prefs', {}));
 let S = null, L = null, raf, ticker, wake, paused = false, pending, hintT, toastT, rTimer;
 let lastIdx = -1, lastSec = -1, lastTick = 0, level = 1, col = [...RGB.round];
 const wall = () => Date.now();
@@ -766,7 +815,9 @@ const saveSession = () => store.set('rc_session', S);
 /* ---------- words ---------- */
 const isFinal = p => p && p.t === 'round' && p.n === S.meta.rounds && S.meta.rounds > 1;
 const calm = () => S?.kind === 'prana';
-const voiceOn = () => calm() ? prefs.pVoice : prefs.voice;
+const plank = () => S?.kind === 'plank';
+const upward = p => plank() && p.t === 'plank'; // the plank itself counts up, with no end
+const voiceOn = () => calm() ? prefs.pVoice : plank() ? prefs.kVoice : prefs.voice;
 const isMain = p => calm() ? p.t !== 'ready' : p.t === 'round';
 const gong = n => calm() ? bowl(n) : bell(n);
 const phaseTitle = p => p.t === 'round' ? `Round ${p.n}` : p.label;
@@ -774,8 +825,13 @@ const nextName = n => isFinal(n) ? 'Final round' : phaseTitle(n);
 const durClip = (s, pre, max) => s % 60 === 0 && s / 60 >= 1 && s / 60 <= max ? `${pre}-${s / 60}` : null;
 const nameClip = p => !p ? null : isFinal(p) ? 'final-round' : p.t === 'round' ? `round-${p.n}` : p.t === 'rest' ? 'rest' : p.t === 'warmup' ? 'warm-up' : null;
 const word = w => calm() ? `p-${w}` : w; // pranayam has its own calmer voice for shared words
+const kgText = kg => kg ? `${+kg.toFixed(1)} kg` : 'No weight';
+const every = s => s % 60 ? `${s}s` : `${s / 60} min`;
+// "1 minute" + "30 seconds": the time called at each plank bell (no voice past 20 minutes)
+const timeClips = sec => { const m = Math.floor(sec / 60), r = sec % 60; return m > 20 ? [] : [m ? `min-${m}` : null, r ? `sec-${r}` : null]; };
 function subText(p, n) {
   if (calm()) return p.t === 'ready' ? (n ? `Sit tall · ${n.label} first` : 'Sit tall') : p.tip;
+  if (plank()) return p.t === 'ready' ? (S.meta.kg ? `Plate on · ${kgText(S.meta.kg)}` : 'Elbows under shoulders') : S.meta.kg ? `${kgText(S.meta.kg)} on · hold strong` : 'Hold strong';
   if (p.t === 'ready') return n ? `Gloves on · ${nextName(n)} first` : 'Gloves on';
   if (p.t === 'warmup') return 'Loosen up';
   if (p.t === 'round') return `of ${S.meta.rounds}`;
@@ -784,6 +840,7 @@ function subText(p, n) {
 function announce(p, delay = 650) {
   if (!voiceOn()) return;
   const ids = calm() ? (p.t === 'ready' ? ['settle'] : [p.t, durClip(p.s, 'pmin', 15)])
+    : plank() ? [p.t === 'ready' ? 'pk-ready' : 'go']
     : p.t === 'ready' ? ['get-ready']
     : p.t === 'warmup' ? ['warm-up', durClip(p.s, 'min', 20)]
     : p.t === 'rest' ? ['rest', durClip(p.s, 'min', 20)]
@@ -816,12 +873,19 @@ function start() {
 }
 function startPrana() {
   audio();
-  const phases = pplan.map(({ k, m }) => ({ t: k, s: m * 60, label: PBY[k].name, tip: PBY[k].tip })).filter(p => p.s);
+  const phases = pplan.filter(x => !x.off).map(({ k, m }) => ({ t: k, s: m * 60, label: PBY[k].name, tip: PBY[k].tip })).filter(p => p.s);
   phases.forEach((p, i) => p.n = i + 1);
   const meta = { rounds: phases.length };
   phases.unshift({ t: 'ready', s: 5, label: 'Settle in' });
   S = { kind: 'prana', phases, start: wall(), paused: 0, pausedAt: null, shift: 0,
         readyActive: 0, readyDone: false, meta, finished: false, early: false };
+  openClock('fresh');
+}
+function startPlank() {
+  audio();
+  const phases = [{ t: 'ready', s: 10, label: 'Get in position' }, { t: 'plank', s: 3600, label: 'Plank' }];
+  S = { kind: 'plank', phases, start: wall(), paused: 0, pausedAt: null, shift: 0, readyActive: 0, readyDone: false,
+        meta: { rounds: 0, kg: prefs.kKg, every: prefs.kEvery, best: plankBest() }, finished: false, early: false };
   openClock('fresh');
 }
 function openClock(mode) {
@@ -853,13 +917,13 @@ function tick(mode) {
   } else if (!mode && !live && !S.pausedAt && gap > 3000) {
     toast(`Screen was off for ${mm(Math.round(gap / 1000))}. The timer kept running.`);
   }
-  const sec = Math.ceil(loc.rem / 1000);
+  const p = S.phases[loc.idx];
+  const sec = upward(p) ? Math.floor(loc.into / 1000) : Math.ceil(loc.rem / 1000);
   if (sec !== lastSec) {
     const first = lastSec === -1; lastSec = sec;
-    const p = S.phases[loc.idx];
     $('cTime').textContent = fmt(sec);
     updateMeta(loc);
-    $('clock').classList.toggle('warn', !S.pausedAt && !calm() && ((p.t === 'round' && sec <= 10) || sec <= 3));
+    $('clock').classList.toggle('warn', !S.pausedAt && !calm() && !upward(p) && ((p.t === 'round' && sec <= 10) || sec <= 3));
     if (!first && live && !S.pausedAt) cues(loc, sec);
   }
 }
@@ -871,11 +935,13 @@ function enterPhase(loc, mode) {
   swapText($('cPhase'), phaseTitle(p), mode === 'fresh' || mode === 'resume');
   $('cBadge').hidden = !isFinal(p);
   $('cSub').textContent = S.pausedAt ? 'Paused' : subText(p, n);
-  $('cNext').textContent = n ? `Next: ${nextName(n)} · ${mm(n.s)}` : calm() ? 'Last one. Then sit in stillness.' : 'Last one. Empty the tank.';
-  const canAdd = p.t !== 'round' && !calm();
+  $('cNext').textContent = plank() ? `Bell every ${every(S.meta.every)} · tap ✓ when you drop`
+    : n ? `Next: ${nextName(n)} · ${mm(n.s)}` : calm() ? 'Last one. Then sit in stillness.' : 'Last one. Empty the tank.';
+  const canAdd = p.t !== 'round' && !calm() && !plank();
   $('bAdd').style.visibility = canAdd ? 'visible' : 'hidden';
   $('bAdd').textContent = p.t === 'rest' ? '+15s rest' : '+15s';
-  $('bSkip').setAttribute('aria-label', n ? `Skip to ${nextName(n)}` : 'Finish session');
+  $('bSkip').setAttribute('aria-label', upward(p) ? 'Finish plank' : n ? `Skip to ${nextName(n)}` : 'Finish session');
+  $('iSkip').innerHTML = upward(p) ? '<path d="M9.5 16.6 4.9 12l-1.4 1.4 6 6 11-11-1.4-1.4z"/>' : '<path d="M5 5l9 7-9 7zM16 5h3v14h-3z"/>';
   updatePips(loc.idx); paintTrack(loc.idx);
 
   if (mode === 'fresh') {
@@ -886,9 +952,10 @@ function enterPhase(loc, mode) {
     gong(1); buzz(300); announce(p);
     toast(`Screen was off. Picking up at ${nextName(p)}.`, 3500);
   } else { // live change or skip
-    if (calm()) gong(p.t === 'ready' ? 1 : 2); else bell(p.t === 'round' ? 2 : 1);
-    buzz(p.t === 'round' ? [250, 120, 250] : 300);
-    if (p.t === 'round' && !reduced) $('flash').animate([{ opacity: 0 }, { opacity: .8, offset: .2 }, { opacity: 0 }], { duration: 700, easing: 'cubic-bezier(.22,1,.36,1)' });
+    const big = p.t === 'round' || p.t === 'plank';
+    if (calm()) gong(p.t === 'ready' ? 1 : 2); else bell(big ? 2 : 1);
+    buzz(big ? [250, 120, 250] : 300);
+    if (big && !reduced) $('flash').animate([{ opacity: 0 }, { opacity: .8, offset: .2 }, { opacity: 0 }], { duration: 700, easing: 'cubic-bezier(.22,1,.36,1)' });
     announce(p);
   }
   saveSession();
@@ -897,8 +964,16 @@ function cues(loc, sec) {
   const p = S.phases[loc.idx], n = S.phases[loc.idx + 1];
   if (calm()) {
     if (p.t === 'ready') { if (sec >= 1 && sec <= 3) countdown(sec); }
-    else if (sec < p.s && sec % 60 === 0) minuteCue(p, sec);
+    else if (sec < p.s && sec % 60 === 0 && !PBY[p.t]?.quiet) minuteCue(p, sec); // tratak runs silent so the gaze isn't broken
     return; // the bell at each new practice marks those minutes
+  }
+  if (plank()) {
+    if (p.t === 'ready') { if (sec >= 1 && sec <= 3) countdown(sec); return; }
+    const ids = [];
+    if (sec % S.meta.every === 0) { bell(1); buzz([120, 80, 120]); toast(`${mm(sec)} held`, 2000); ids.push(...timeClips(sec)); }
+    if (S.meta.best && !S.meta.beat && sec > S.meta.best) { S.meta.beat = true; saveSession(); toast('New personal best!', 3000); buzz([60, 60, 60, 60, 200]); ids.push('pk-best'); }
+    if (ids.length && voiceOn()) setTimeout(() => { if (S && !S.finished) say(...ids); }, 900);
+    return;
   }
   if (sec === 10 && p.s > 15) {
     if (p.t === 'round') { clack(); buzz([60, 80, 60]); if (prefs.voice) setTimeout(() => say('ten-seconds'), 350); }
@@ -926,13 +1001,18 @@ function countdown(n) {
   $('cTime').animate([{ opacity: 1 }, { opacity: .15, offset: .2 }, { opacity: .15, offset: .8 }, { opacity: 1 }], { duration: 950 });
 }
 function updateMeta(loc) {
+  if (plank()) {
+    $('cLeft').textContent = S.meta.best ? `Best ${mm(S.meta.best)}` : 'First plank';
+    $('cEnds').textContent = S.pausedAt ? 'Paused' : S.meta.kg ? `+${kgText(S.meta.kg)}` : 'Bodyweight';
+    return;
+  }
   $('cLeft').textContent = `${mm(Math.ceil(loc.left / 1000))} left`;
   $('cEnds').textContent = S.pausedAt ? 'Paused'
     : 'Ends ' + new Date(wall() + loc.left).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }
 
 /* ---------- session strip + round dots ---------- */
-function buildTrack() { $('cTrack').innerHTML = S.phases.map(p => `<i class="tseg ${p.t}" style="flex-grow:${p.s}"><b></b></i>`).join(''); }
+function buildTrack() { $('cTrack').style.visibility = plank() ? 'hidden' : ''; $('cTrack').innerHTML = S.phases.map(p => `<i class="tseg ${p.t}" style="flex-grow:${p.s}"><b></b></i>`).join(''); }
 function paintTrack(idx) {
   [...$('cTrack').children].forEach((el, i) => {
     el.style.flexGrow = S.phases[i].s;
@@ -971,6 +1051,7 @@ function togglePause() {
 function skip() {
   if (!S || S.finished) return;
   const l = locate();
+  if (upward(S.phases[l.idx])) { endEarly(); return; } // a plank has no next phase: ✓ ends it
   (S.skipped ||= {})[l.idx] = l.into; // so the log only credits what was actually done
   S.shift += l.rem; lastTick = performance.now();
   stopVoice();
@@ -1001,9 +1082,16 @@ function finish(early, silent) {
   try { wake?.release(); } catch {}
   if (!silent) {
     gong(3); buzz([300, 150, 300, 150, 300]);
-    if (voiceOn()) setTimeout(() => say(calm() ? (early ? 'practice-ended' : 'prana-complete') : early ? 'session-ended' : 'session-complete'), calm() ? 2600 : 1300);
+    if (voiceOn()) setTimeout(() => say(plank() ? 'pk-done' : calm() ? (early ? 'practice-ended' : 'prana-complete') : early ? 'session-ended' : 'session-complete'), calm() ? 2600 : 1300);
   }
-  if (calm()) {
+  $('dKgRow').hidden = !plank();
+  if (plank()) {
+    const held = loc.idx === 1 ? Math.round(loc.into / 1000) : 0;
+    pending = { kind: 'plank', date: S.start, total: held, kg: S.meta.kg };
+    $('dTitle').textContent = S.meta.best && held > S.meta.best ? 'New best!' : 'Plank done';
+    doneKg();
+    $('dNote').placeholder = 'How did it feel? e.g. core shaking at 1:30';
+  } else if (calm()) {
     const credit = (p, i) => i > loc.idx ? 0 : S.skipped?.[i] ?? (i === loc.idx && !loc.done ? loc.into : p.s * 1000);
     const steps = S.phases.map((p, i) => ({ k: p.t, s: Math.round(credit(p, i) / 1000) })).filter(x => x.k !== 'ready');
     const ptotal = steps.reduce((a, x) => a + x.s, 0);
@@ -1022,7 +1110,8 @@ function finish(early, silent) {
 }
 function closeSession(save) {
   if (save && pending) {
-    const kind = pending.kind === 'prana' ? 'prana' : 'box', log = store.get(LOGKEY[kind], []);
+    const kind = pending.kind || 'box', log = store.get(LOGKEY[kind], []);
+    if (kind === 'plank') prefs.kKg = pending.kg;
     log.unshift({ ...pending, note: $('dNote').value.trim() }); store.set(LOGKEY[kind], log);
     prefs.logKind = kind; store.set('rc_prefs', prefs);
   }
@@ -1030,7 +1119,7 @@ function closeSession(save) {
   $('clock').classList.remove('open');
   store.set('rc_session', null); S = null; L = null; pending = null;
   clearInterval(ticker); setTimeout(() => cancelAnimationFrame(raf), 700);
-  renderLog();
+  renderLog(); renderPlank();
 }
 
 /* ---------- reopening mid-session ---------- */
@@ -1046,7 +1135,7 @@ function checkSaved() {
     if (l.done) { clearInterval(rTimer); $('resume').classList.remove('open'); finish(false, true); return; }
     const p = S.phases[l.idx];
     $('rWhere').textContent = p.t === 'round' ? `Round ${p.n} of ${S.meta.rounds}` : phaseTitle(p);
-    $('rLeft').textContent = `${fmt(Math.ceil(l.rem / 1000))} left`;
+    $('rLeft').textContent = upward(p) ? `${fmt(Math.floor(l.into / 1000))} held` : `${fmt(Math.ceil(l.rem / 1000))} left`;
   };
   $('rNote').textContent = S.pausedAt ? 'Paused. Pick up right where you stopped.' : 'Your session kept running while the app was closed.';
   paint(); clearInterval(rTimer); rTimer = setInterval(paint, 500);
@@ -1066,6 +1155,7 @@ function renderPrefs() {
   $('voiceTog').setAttribute('aria-checked', String(prefs.voice));
   $('vibeTog').setAttribute('aria-checked', String(prefs.vibe));
   $('pVoiceTog').setAttribute('aria-checked', String(prefs.pVoice));
+  $('kVoiceTog').setAttribute('aria-checked', String(prefs.kVoice));
   document.querySelectorAll('.mixTog').forEach(t => t.setAttribute('aria-checked', String(prefs.mix)));
   $('startNote').textContent = prefs.lead ? `${prefs.lead} seconds to glove up, then the bell` : 'The bell rings as soon as you tap';
   store.set('rc_prefs', prefs);
@@ -1079,6 +1169,7 @@ document.querySelectorAll('.mixTog').forEach(t => t.onclick = () => {
   if (ac) { ac.close().catch(() => {}); ac = null; }
   bell(1);
 });
+$('kVoiceTog').onclick = () => { prefs.kVoice = !prefs.kVoice; renderPrefs(); if (prefs.kVoice) { audio(); say('voice-coach-on'); } };
 $('pVoiceTog').onclick = () => { prefs.pVoice = !prefs.pVoice; renderPrefs(); if (prefs.pVoice) { audio(); say('voice-guide-on'); } };
 if (!('vibrate' in navigator)) $('vibeRow').hidden = true;
 
@@ -1102,7 +1193,8 @@ function frame(t) {
   for (let i = 0; i < 3; i++) col[i] += (target[i] - col[i]) * 0.06;
   const rgb = col.map(Math.round).join(',');
   $('clock').style.setProperty('--g', rgb);
-  const frac = Math.min(1, loc.rem / (p.s * 1000));
+  // plank: the ring drains toward each bell, then fills again
+  const frac = upward(p) ? 1 - (loc.into / 1000 % S.meta.every) / S.meta.every : Math.min(1, loc.rem / (p.s * 1000));
   level += (frac - level) * (reduced ? 1 : 0.12);
   const seg = $('cTrack').children[loc.idx];
   if (seg) seg.firstChild.style.width = `${Math.min(100, 100 * loc.into / (p.s * 1000)).toFixed(2)}%`;
@@ -1179,6 +1271,10 @@ $('pStartBtn').onclick = () => {
   if (!reduced) $('flash').animate([{ opacity: 0 }, { opacity: .7, offset: .25 }, { opacity: 0 }], { duration: 900, easing: 'cubic-bezier(.22,1,.36,1)' });
   startPrana();
 };
+$('kStartBtn').onclick = () => {
+  if (!reduced) $('flash').animate([{ opacity: 0 }, { opacity: .7, offset: .25 }, { opacity: 0 }], { duration: 750, easing: 'cubic-bezier(.22,1,.36,1)' });
+  startPlank();
+};
 $('dialBtn').onclick = togglePause;
 $('dialBtn').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePause(); } });
 $('bPause').onclick = togglePause;
@@ -1217,20 +1313,24 @@ const PRANA = [
   { k: 'bhastrika', name: 'Bhastrika', short: 'Bhastrika', tip: 'Deep, forceful breaths in and out' },
   { k: 'anulom', name: 'Anulom Vilom', short: 'Anulom Vilom', tip: 'Alternate nostrils, slow and even' },
   { k: 'kapal', name: 'Kapalbhati', short: 'Kapalbhati', tip: 'Sharp breaths out, belly snaps in' },
-  { k: 'bhramari', name: 'Bhramari', short: 'Bhramari', tip: 'Ears closed, hum like a bee' }
+  { k: 'bhramari', name: 'Bhramari', short: 'Bhramari', tip: 'Ears closed, hum like a bee' },
+  { k: 'tratak', name: 'Tratak', short: 'Tratak', tip: 'Candle gaze, few blinks · no bells till the end', opt: true, quiet: true }
 ];
 const PBY = Object.fromEntries(PRANA.map(x => [x.k, x]));
-const PDEF = [['om', 1], ['bhastrika', 1], ['anulom', 4], ['kapal', 4], ['bhramari', 1]].map(([k, m]) => ({ k, m }));
+const PDEF = [['om', 1], ['bhastrika', 1], ['anulom', 4], ['kapal', 4], ['bhramari', 1], ['tratak', 10]].map(([k, m]) => ({ k, m }));
 // The plan is the practices in the order you do them. Older saves were just minutes in the default order.
 let pplan = store.get('rc_prana', PDEF);
-if (Array.isArray(pplan) && pplan.length === PRANA.length && pplan.every(Number.isFinite)) pplan = PRANA.map((x, i) => ({ k: x.k, m: pplan[i] }));
-if (!Array.isArray(pplan) || pplan.length !== PRANA.length || !pplan.every(x => PBY[x?.k])) pplan = PDEF.map(x => ({ ...x }));
+if (Array.isArray(pplan) && pplan.length <= PRANA.length && pplan.every(Number.isFinite)) pplan = pplan.map((m, i) => ({ k: PRANA[i].k, m }));
+if (!Array.isArray(pplan) || !pplan.every(x => PBY[x?.k])) pplan = [];
+PDEF.forEach(d => { if (!pplan.some(x => x.k === d.k)) pplan.push({ ...d }); }); // practices added later join at the end
+const onMin = x => x.off ? 0 : x.m;
 const GRIP = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
 function initPrana() {
   $('pSteps').innerHTML = PRANA.map(x => `<div class="crow prow" data-k="${x.k}">
     <button class="grip" aria-label="Move ${x.name}. Drag, or use the up and down arrow keys">${GRIP}</button>
-    <div class="ctext"><b><i style="background:var(--${x.k})"></i>${x.name}</b><span>${x.tip}</span></div>
+    <div class="ctext"><b><i style="background:var(--${x.k})"></i>${x.name}</b><span>${x.opt ? 'Optional · ' : ''}${x.tip}</span></div>
     <div class="stepper"><button data-d="-1" aria-label="Shorter ${x.name}">−</button><output></output><button data-d="1" aria-label="Longer ${x.name}">+</button></div>
+    ${x.opt ? `<button class="tog ptog" role="switch" aria-label="Include ${x.name} today"><i></i></button>` : ''}
   </div>`).join('');
   $('pBar').innerHTML = PRANA.map(x => `<i class="seg ${x.k}" data-k="${x.k}"></i>`).join('');
   [...$('pSteps').children].forEach(row => {
@@ -1239,6 +1339,8 @@ function initPrana() {
       const step = pplan.find(x => x.k === k);
       step.m = Math.max(0, Math.min(15, step.m + +b.dataset.d)); refreshPrana(); buzz(10);
     });
+    const t = row.querySelector('.ptog');
+    if (t) t.onclick = () => { const step = pplan.find(x => x.k === k); step.off = !step.off; refreshPrana(); buzz(15); };
     dragRow(row);
   });
   $('pReset').onclick = () => { pplan = PDEF.map(x => ({ ...x })); refreshPrana(); };
@@ -1292,24 +1394,54 @@ function dragRow(row) {
   });
 }
 function refreshPrana() {
-  pplan.forEach(({ k, m }) => {
-    const row = $('pSteps').querySelector(`[data-k="${k}"]`), [less, more] = row.querySelectorAll('.stepper button');
+  pplan.forEach(x => {
+    const { k, m } = x, row = $('pSteps').querySelector(`[data-k="${k}"]`), [less, more] = row.querySelectorAll('.stepper button');
     $('pSteps').append(row);
     row.querySelector('output').textContent = m ? `${m} min` : 'Off';
-    row.classList.toggle('off', !m);
-    less.disabled = !m; more.disabled = m >= 15;
+    row.classList.toggle('off', !onMin(x));
+    less.disabled = !m || x.off; more.disabled = m >= 15 || x.off;
+    row.querySelector('.ptog')?.setAttribute('aria-checked', String(!x.off));
     const seg = $('pBar').querySelector(`[data-k="${k}"]`);
-    $('pBar').append(seg); seg.style.flexGrow = m;
+    $('pBar').append(seg); seg.style.flexGrow = onMin(x);
   });
-  const total = pplan.reduce((a, x) => a + x.m, 0);
+  const total = pplan.reduce((a, x) => a + onMin(x), 0);
   $('pTotal').textContent = `${total} min`;
   $('pStartBtn').disabled = !total;
-  $('pReset').hidden = JSON.stringify(pplan) === JSON.stringify(PDEF);
+  const sig = p => p.map(x => `${x.k}:${x.m}${x.off ? '-' : ''}`).join();
+  $('pReset').hidden = sig(pplan) === sig(PDEF);
   store.set('rc_prana', pplan);
 }
 
+/* ---------- plank setup ---------- */
+const KG_STEP = 2.5, KG_MAX = 60;
+const plankBest = () => store.get(LOGKEY.plank, []).reduce((a, e) => Math.max(a, e.total), 0);
+function kgStepper(el, get, set) {
+  const [less, more] = el.querySelectorAll('button'), paint = () => {
+    const kg = get(); el.querySelector('output').textContent = kg ? kgText(kg) : 'None';
+    less.disabled = !kg; more.disabled = kg >= KG_MAX;
+  };
+  [less, more].forEach(b => b.onclick = () => { set(Math.max(0, Math.min(KG_MAX, get() + +b.dataset.d * KG_STEP))); paint(); buzz(10); });
+  paint(); return paint;
+}
+const paintKg = kgStepper($('kKg'), () => prefs.kKg, kg => { prefs.kKg = kg; store.set('rc_prefs', prefs); });
+// the weight can still be changed after the hold, in case it was set wrong
+const paintDoneKg = kgStepper($('dKg'), () => pending?.kg || 0, kg => { if (pending) { pending.kg = kg; doneKg(); } });
+function doneKg() {
+  $('dSummary').innerHTML = `<span>${kgText(pending.kg)}</span><b>${mm(pending.total)} held</b>`;
+  paintDoneKg();
+}
+function renderPlank() {
+  const log = store.get(LOGKEY.plank, []), best = plankBest(), last = log[0];
+  $('kBest').textContent = best ? mm(best) : '–';
+  $('kLast').textContent = last ? `Last: ${mm(last.total)} · ${kgText(last.kg)} · ${new Date(last.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}` : 'No planks yet. Your best shows up here.';
+  document.querySelectorAll('#kEvery button').forEach(b => b.setAttribute('aria-checked', String(+b.dataset.v === prefs.kEvery)));
+  $('kNote').textContent = `10 seconds to get in position · a bell every ${every(prefs.kEvery)} · tap ✓ when you drop`;
+  paintKg();
+}
+document.querySelectorAll('#kEvery button').forEach(b => b.onclick = () => { prefs.kEvery = +b.dataset.v; store.set('rc_prefs', prefs); renderPlank(); });
+
 /* ---------- log ---------- */
-const LOGKEY = { box: 'rc_log', prana: 'rc_plog' };
+const LOGKEY = { box: 'rc_log', prana: 'rc_plog', plank: 'rc_klog' };
 let snackT, undoFn, clearArmed = false, clearT;
 function snack(msg, undo) {
   $('snackMsg').textContent = msg; undoFn = undo;
@@ -1330,23 +1462,26 @@ function deleteEntry(i, el) {
   log.splice(i, 1); store.set(key, log);
   el.animate([{ opacity: 1, height: el.offsetHeight + 'px' }, { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0 }], { duration: reduced ? 1 : 260, easing: 'ease-in' })
     .onfinish = () => renderLog(true);
-  snack('Session deleted', () => { store.set(key, before); renderLog(true); });
+  renderPlank();
+  snack('Session deleted', () => { store.set(key, before); renderLog(true); renderPlank(); });
 }
 function renderLog(quiet) {
-  const kind = prefs.logKind, prana = kind === 'prana', log = store.get(LOGKEY[kind], []);
+  const kind = prefs.logKind, prana = kind === 'prana', isPlank = kind === 'plank', log = store.get(LOGKEY[kind], []);
+  const best = isPlank ? plankBest() : 0;
   document.querySelectorAll('#logSeg button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === kind)));
   const secs = log.reduce((a, e) => a + e.total, 0);
   $('sSessions').textContent = log.length;
-  $('sL2').textContent = prana ? 'Day streak' : 'Rounds';
-  $('sRounds').textContent = prana ? streak(log) : log.reduce((a, e) => a + e.rounds, 0);
-  $('sL3').textContent = prana ? 'Minutes' : 'Hours';
-  $('sTime').textContent = prana ? Math.round(secs / 60) : `${Math.floor(secs/3600)}:${String(Math.floor(secs%3600/60)).padStart(2,'0')}`;
+  $('sL2').textContent = prana ? 'Day streak' : isPlank ? 'Best' : 'Rounds';
+  $('sRounds').textContent = prana ? streak(log) : isPlank ? mm(best) : log.reduce((a, e) => a + e.rounds, 0);
+  $('sL3').textContent = prana || isPlank ? 'Minutes' : 'Hours';
+  $('sTime').textContent = prana || isPlank ? Math.round(secs / 60) : `${Math.floor(secs/3600)}:${String(Math.floor(secs%3600/60)).padStart(2,'0')}`;
   disarmClear();
   $('clearLog').hidden = !log.length;
-  $('clearLog').textContent = prana ? 'Clear pranayam log' : 'Clear boxing log';
+  $('clearLog').textContent = prana ? 'Clear pranayam log' : isPlank ? 'Clear plank log' : 'Clear boxing log';
   if (!log.length) {
     $('logList').innerHTML = prana
       ? `<div class="empty">No pranayam yet.<br>Finish a practice and save it, and it shows up here.</div>`
+      : isPlank ? `<div class="empty">No planks yet.<br>Finish a hold and save it, and it shows up here.</div>`
       : `<div class="empty">No sessions yet.<br>Finish a timer session and save it, and it shows up here.</div>`;
     return;
   }
@@ -1360,6 +1495,8 @@ function renderLog(quiet) {
       const did = e.steps.filter(x => x.s).length;
       el.innerHTML = `<div class="top"><b>${did === e.steps.length ? 'Full practice' : `${did} of ${e.steps.length} practices`}</b><span class="tr"><span class="when">${fmt(e.total)}</span></span></div><div class="when">${when}</div>`
         + `<div class="psum">${e.steps.map(x => `<span class="${x.s ? '' : 'miss'}"><i style="background:var(--${x.k})"></i>${(PRANA.find(p => p.k === x.k) || { short: x.k }).short} ${mm(x.s)}</span>`).join('')}</div>`;
+    } else if (isPlank) {
+      el.innerHTML = `<div class="top"><b>${mm(e.total)} hold${best && e.total === best ? '<span class="pb">Best</span>' : ''}</b><span class="tr"><span class="when">${kgText(e.kg)}</span></span></div><div class="when">${when}</div>`;
     } else {
       el.innerHTML = `<div class="top"><b>${e.rounds} × ${fmt(e.round)}</b><span class="tr"><span class="when">${fmt(e.total)}</span></span></div><div class="when">${when} · rest ${fmt(e.rest)}</div>`;
     }
@@ -1381,11 +1518,11 @@ $('clearLog').onclick = () => {
     clearT = setTimeout(() => renderLog(true), 3500);
     return;
   }
-  store.set(key, []); renderLog();
-  snack('Log cleared', () => { store.set(key, log); renderLog(true); });
+  store.set(key, []); renderLog(); renderPlank();
+  snack('Log cleared', () => { store.set(key, log); renderLog(true); renderPlank(); });
 };
 
-const VIEWS = { setup: ['tabSetup', 'setup'], prana: ['tabPrana', 'pranaView'], log: ['tabLog', 'logView'] };
+const VIEWS = { setup: ['tabSetup', 'setup'], prana: ['tabPrana', 'pranaView'], plank: ['tabPlank', 'plankView'], log: ['tabLog', 'logView'] };
 function tab(which) {
   $('tabs').dataset.on = which;
   Object.entries(VIEWS).forEach(([k, [t, v]]) => { $(t).setAttribute('aria-selected', k === which); $(v).classList.toggle('off', k !== which); });
@@ -1393,15 +1530,16 @@ function tab(which) {
 }
 $('tabSetup').onclick = () => tab('setup');
 $('tabPrana').onclick = () => tab('prana');
+$('tabPlank').onclick = () => tab('plank');
 $('tabLog').onclick = () => tab('log');
 
-initSetup(); initPrana(); renderLog(); renderPrefs(); applySession(); checkSaved();
+initSetup(); initPrana(); renderPlank(); renderLog(); renderPrefs(); applySession(); checkSaved();
 setTimeout(prefetchVoice, 3000);
 </script>
 
 <script>
 // Bump APP_VERSION together with CACHE in sw.js on every release; the update button compares it with the live copy.
-const APP_VERSION = 6;
+const APP_VERSION = 7;
 document.getElementById('appVer').textContent = `Version ${APP_VERSION}`;
 document.getElementById('updBtn').onclick = async () => {
   const btn = document.getElementById('updBtn');

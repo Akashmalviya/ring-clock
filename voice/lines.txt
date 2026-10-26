@@ -119,3 +119,10 @@ togo-11|Tara|165|11 to go
 togo-12|Tara|165|12 to go
 togo-13|Tara|165|13 to go
 togo-14|Tara|165|14 to go
+pk-ready|Aman|200|Get in position
+pk-best|Aman|200|New personal best!
+pk-done|Aman|200|Plank done. Strong hold.
+sec-15|Aman|200|15 seconds
+sec-30|Aman|200|30 seconds
+sec-45|Aman|200|Forty-five seconds
+tratak|Tara|165|Tratak

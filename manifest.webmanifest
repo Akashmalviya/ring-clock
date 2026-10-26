@@ -1,7 +1,7 @@
 {
   "name": "Ring Clock",
   "short_name": "Ring Clock",
-  "description": "Boxing round timer and daily pranayam timer, each with its own log.",
+  "description": "Boxing round timer, daily pranayam timer and plank stopwatch, each with its own log.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
